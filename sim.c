@@ -194,13 +194,13 @@ dec(uint32_t addr)
 }
 
 void
-br(uint32_t flag)
+br(uint32_t cond)
 {
 	uint16_t t;
-	if (flag) {
+	if (cond) {
 		t = mem[pc];
 		if (t & 0x80)
-			t |= 0xff00;
+			t |= 0xff00; // extend sign
 		pc += t + 1;
 	} else
 		pc++;
@@ -678,7 +678,7 @@ func_lsr_acc(void) // acc
 {
 	cf = acc & 1;
 	acc >>= 1;
-	zf = (acc == 0) ? 1 : 0;
+	zf = acc ? 0 : 1;
 	nf = 0;
 }
 
@@ -713,9 +713,9 @@ func_asl_zp(void) // zp
 void
 func_asl_acc(void) // acc
 {
-	cf = acc & 0x80;
+	cf = (acc & 0x80) ? 1 : 0;
 	acc <<= 1;
-	zf = (acc) ? 0 : 1;
+	zf = acc ? 0 : 1;
 	nf = (acc & 0x80) ? 1 : 0;
 }
 
@@ -750,10 +750,11 @@ func_rol_zp(void) // zp
 void
 func_rol_acc(void) // acc
 {
+	uint8_t t;
+	t = acc;
 	acc = acc << 1 | cf;
-	cf = (acc & 0x100) ? 1 : 0;
-	acc &= 0xff;
-	zf = (acc == 0) ? 1 : 0;
+	zf = acc ? 0 : 1;
+	cf = (t & 0x80) ? 1 : 0;
 	nf = (acc & 0x80) ? 1 : 0;
 }
 
@@ -788,11 +789,11 @@ func_ror_zp(void) // zp
 void
 func_ror_acc(void) // acc
 {
-	uint32_t t;
+	uint8_t t;
 	t = acc;
-	acc = (acc >> 1 | cf << 7) & 0xff;
+	acc = (acc >> 1) | (cf << 7);
+	zf = acc ? 0 : 1;
 	cf = t & 1;
-	zf = (acc == 0) ? 1 : 0;
 	nf = (acc & 0x80) ? 1 : 0;
 }
 
