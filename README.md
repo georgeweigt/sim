@@ -1,4 +1,4 @@
-To build and run
+Build and run
 ```
 make
 ./sim
