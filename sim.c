@@ -569,13 +569,6 @@ func_sta_zp(void) // zp
 }
 
 void
-func_sta_imm(void) // imm (not used)
-{
-	st(IMM, acc);
-	pc++;
-}
-
-void
 func_sta_abs(void) // abs
 {
 	st(ABS, acc);
