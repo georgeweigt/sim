@@ -1283,6 +1283,7 @@ func_beq(void)
 void
 func_php(void)
 {
+	// BRK and PHP push B=1, IRQ and NMI push B=0
 	mem[0x100 + --sp] = nf << 7 | of << 6 | 1 << 5 | 1 << 4 | df << 3 | id << 2 | zf << 1 | cf;
 }
 
@@ -1319,6 +1320,7 @@ func_brk(void)
 	pc++;
 	mem[0x100 + --sp] = pc >> 8;
 	mem[0x100 + --sp] = pc;
+	// BRK and PHP push B=1, IRQ and NMI push B=0
 	mem[0x100 + --sp] = nf << 7 | of << 6 | 1 << 5 | 1 << 4 | df << 3 | id << 2 | zf << 1 | cf;
 	pc = mem[0xfffe] | mem[0xffff] << 8;
 	id = 1;
