@@ -1079,7 +1079,7 @@ func_jmp(void)
 void
 func_jmpi(void)
 {
-	uint32_t addr;
+	uint16_t addr;
 	addr = ABS;
 	pc = mem[addr] | mem[(addr & 0xff00) | ((addr + 1) & 0xff)] << 8;
 }
@@ -1105,7 +1105,7 @@ func_rts(void)
 void
 func_rti(void)
 {
-	uint32_t t;
+	uint8_t t;
 	t = mem[0x100 + sp++];
 	nf = (t & 0x80) ? 1 : 0;
 	of = (t & 0x40) ? 1 : 0;
@@ -1296,7 +1296,7 @@ func_php(void)
 void
 func_plp(void)
 {
-	uint32_t t;
+	uint8_t t;
 	t = mem[0x100 + sp++];
 	nf = (t & 0x80) ? 1 : 0;
 	of = (t & 0x40) ? 1 : 0;
