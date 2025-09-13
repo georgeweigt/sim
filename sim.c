@@ -754,8 +754,8 @@ func_rol_acc(void) // acc
 	t = acc;
 	acc = acc << 1 | cf;
 	zf = acc ? 0 : 1;
-	cf = (t & 0x80) ? 1 : 0;
 	nf = (acc & 0x80) ? 1 : 0;
+	cf = (t & 0x80) ? 1 : 0;
 }
 
 void
@@ -793,8 +793,8 @@ func_ror_acc(void) // acc
 	t = acc;
 	acc = (acc >> 1) | (cf << 7);
 	zf = acc ? 0 : 1;
-	cf = t & 1;
 	nf = (acc & 0x80) ? 1 : 0;
+	cf = t & 1;
 }
 
 void
