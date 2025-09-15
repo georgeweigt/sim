@@ -10,6 +10,7 @@
 #define T_REGA   1010
 #define T_REGX   1011
 #define T_REGY   1012
+#define T_PSEUDO 1013
 
 #define AM_IMM   1
 #define AM_ZP    2
@@ -220,7 +221,6 @@ scan_file(int k)
 void
 scan_line(void)
 {
-	int err = 0, i;
 	struct sym *p = NULL;
 
 	scan_token();
@@ -236,8 +236,23 @@ scan_line(void)
 	if (token == T_LF)
 		return;
 
-	if (token != T_NAME)
+	switch (token) {
+	case T_PSEUDO:
+		scan_pseudo_op(p);
+		break;
+	case T_NAME:
+		scan_opcode();
+		break;
+	default:
 		scan_error("opcode expected");
+		break;
+	}
+}
+
+void
+scan_pseudo_op(struct sym *p)
+{
+	int i;
 
 	for (i = 0; i < tokenlen; i++)
 		tokenbuf[i] = tolower(tokenbuf[i]);
@@ -267,23 +282,37 @@ scan_line(void)
 		return;
 	}
 
-	switch (*tokenbuf) {
+	if (strcmp(tokenbuf, ".bss") == 0) {
+		scan_token();
+		scan_value();
+		if (where == 0)
+			scan_error("unresolved symbol in BSS");
+		curloc += value;
+		return;
+	}
 
-	case '.':
-		if (strcmp(tokenbuf, ".bss") == 0) {
-			scan_bss();
-			break;
-		}
-		if (strcmp(tokenbuf, ".byte") == 0) {
-			scan_byte();
-			break;
-		}
-		if (strcmp(tokenbuf, ".word") == 0) {
-			scan_word();
-			break;
-		}
-		err = 1;
-		break;
+	if (strcmp(tokenbuf, ".byte") == 0) {
+		scan_byte();
+		return;
+	}
+
+	if (strcmp(tokenbuf, ".word") == 0) {
+		scan_word();
+		return;
+	}
+
+	scan_error("unsupported pseudo-op");
+}
+
+void
+scan_opcode(void)
+{
+	int err = 0, i;
+
+	for (i = 0; i < tokenlen; i++)
+		tokenbuf[i] = tolower(tokenbuf[i]);
+
+	switch (*tokenbuf) {
 
 	case 'a':
 		if (strcmp(tokenbuf, "adc") == 0) {
@@ -862,7 +891,20 @@ scan_token(void)
 
 	tokenptr = scanptr;
 
-	if (isalpha(*scanptr) || *scanptr == '.') {
+	if (*scanptr == '.') {
+		do
+			scanptr++;
+		while (isalnum(*scanptr));
+		tokenlen = scanptr - tokenptr;
+		if (tokenlen > TOKENBUFLEN)
+			scan_error("too long");
+		memcpy(tokenbuf, tokenptr, tokenlen);
+		tokenbuf[tokenlen] = 0;
+		token = T_PSEUDO;
+		return;
+	}
+
+	if (isalpha(*scanptr)) {
 		do
 			scanptr++;
 		while (isalnum(*scanptr));
@@ -1995,16 +2037,6 @@ scan_emit(int opcode, int count)
 	while (*s && *s != '\n')
 		putchar(*s++);
 	putchar('\n');
-}
-
-void
-scan_bss(void)
-{
-	scan_token();
-	scan_value();
-	if (where == 0)
-		scan_error("unresolved symbol in BSS");
-	curloc += value;
 }
 
 void
