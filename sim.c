@@ -111,6 +111,8 @@ st(uint32_t addr, uint32_t val)
 	mem[addr] = val;
 	if (addr == 0xfff0)
 		putchar(val);
+	if (addr == 0xfff1)
+		exit(1);
 }
 
 void
@@ -1335,8 +1337,7 @@ void
 func_undef(void)
 {
 	pc -= 1;
-	if (mem[pc] != 0x80)
-		printf("undef %04x:%02x\n", (uint32_t) pc, (uint32_t) mem[pc]);
+	printf("undef %04x:%02x\n", (int) pc, (int) mem[pc]);
 	exit(1);
 }
 
@@ -1665,15 +1666,30 @@ struct {
 	func_undef,	// ff
 };
 
-uint8_t hello[22] = {
-0xa2,0x00,
-0xbd,0x0f,0x02,
-0xf0,0x07,
-0x8d,0xf0,0xff,
-0xe8,
-0x4c,0x02,0x02,
-0x80,
-0x68,0x65,0x6c,0x6c,0x6f,0x0a,0x00,
+/*
+000000r 1                       .org    $200
+000200  1  A2 00                ldx     #0
+000202  1  BD 11 02     loop:   lda     str,x
+000205  1  F0 07                beq     done
+000207  1  8D F0 FF             sta     $fff0   ; write to console
+00020A  1  E8                   inx
+00020B  1  4C 02 02             jmp     loop
+00020E  1  8D F1 FF     done:   sta     $fff1   ; power off
+000211  1  68 65 6C 6C  str:    .byte   "hello",10,0
+000215  1  6F 0A 00
+000217  1
+*/
+
+uint8_t hello[24] = {
+	0xa2,0x00,
+	0xbd,0x11,0x02,
+	0xf0,0x07,
+	0x8d,0xf0,0xff,
+	0xe8,
+	0x4c,0x02,0x02,
+	0x8d,0xf1,0xff,
+	0x68,0x65,0x6c,0x6c,
+	0x6f,0x0a,0x00,
 };
 
 int
@@ -1681,7 +1697,7 @@ main()
 {
 	void (*func)(void);
 	mem = malloc(65536);
-	memcpy(mem + 0x200, hello, 22);
+	memcpy(mem + 0x200, hello, sizeof hello);
 	pc = 0x200;
 	for (;;) {
 		func = ftab[mem[pc++]].func;
