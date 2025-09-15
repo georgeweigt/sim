@@ -257,18 +257,6 @@ scan_pseudo_op(struct sym *p)
 	for (i = 0; i < tokenlen; i++)
 		tokenbuf[i] = tolower(tokenbuf[i]);
 
-	if (strcmp(tokenbuf, ".equ") == 0) {
-		scan_token();
-		scan_value();
-		if (pass == 2 && where == 0)
-			scan_error("unresolved symbol in EQU");
-		if (p) {
-			p->value = value;
-			p->where = where;
-		}
-		return;
-	}
-
 	if (strcmp(tokenbuf, ".org") == 0) {
 		scan_token();
 		scan_value();
@@ -795,10 +783,6 @@ scan_factor(void)
 		break;
 
 	case T_NAME:
-		// possible states:
-		// 1. in symbol table with known value (label or equ)
-		// 2. in symbol table with unknown value (unresolved equ)
-		// 3. not in symbol table (forward defn)
 		p = scan_lookup();
 		if (p && p->where) {
 			stack_push(p->value);
