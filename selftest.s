@@ -722,6 +722,215 @@ zp	equ	$10
 	beq	$+5
 	jmp	fail
 
+; asl zp
+
+	lda	#4
+	sta	zp
+	asl	zp
+	lda	zp
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; asl a
+
+	lda	#4
+	asl	a
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; asl abs
+
+	lda	#4
+	sta	mem
+	asl	mem
+	lda	mem
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; asl zp,x
+
+	lda	#4
+	sta	zp+1
+	ldx	#1
+	asl	zp,x
+	lda	zp+1
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; asl abs,x
+
+	lda	#4
+	sta	mem+3
+	ldx	#3
+	asl	mem,x
+	lda	mem+3
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; rol zp
+
+	lda	#4
+	sta	zp
+	clc
+	rol	zp
+	lda	zp
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; rol a
+
+	lda	#4
+	clc
+	rol	a
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; rol abs
+
+	lda	#4
+	sta	mem
+	clc
+	rol	mem
+	lda	mem
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; rol zp,x
+
+	lda	#4
+	sta	zp+1
+	ldx	#1
+	clc
+	rol	zp,x
+	lda	zp+1
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; rol abs,x
+
+	lda	#4
+	sta	mem+3
+	ldx	#3
+	clc
+	rol	mem,x
+	lda	mem+3
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; lsr zp
+
+	lda	#4
+	sta	zp
+	lsr	zp
+	lda	zp
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; lsr a
+
+	lda	#4
+	lsr	a
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; lsr abs
+
+	lda	#4
+	sta	mem
+	lsr	mem
+	lda	mem
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; lsr zp,x
+
+	lda	#4
+	sta	zp+1
+	ldx	#1
+	lsr	zp,x
+	lda	zp+1
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; lsr abs,x
+
+	lda	#4
+	sta	mem+3
+	ldx	#3
+	lsr	mem,x
+	lda	mem+3
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; ror zp
+
+	lda	#4
+	sta	zp
+	clc
+	ror	zp
+	lda	zp
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; ror a
+
+	lda	#4
+	clc
+	ror	a
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; ror abs
+
+	lda	#4
+	sta	mem
+	clc
+	ror	mem
+	lda	mem
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; ror zp,x
+
+	lda	#4
+	sta	zp+1
+	ldx	#1
+	clc
+	ror	zp,x
+	lda	zp+1
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; ror abs,x
+
+	lda	#4
+	sta	mem+3
+	ldx	#3
+	clc
+	ror	mem,x
+	lda	mem+3
+	cmp	#2
+	beq	$+5
+	jmp	fail
 
 pass	lda	str1
 	sta	putc
