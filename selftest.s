@@ -556,8 +556,171 @@ zp	equ	$10
 	beq	$+5
 	jmp	fail
 
+; lda (zp,x)
 
+	lda	#mem
+	sta	zp+1
+	lda	#mem>>8
+	sta	zp+2
+	lda	#23
+	sta	mem
+	lda	#0
+	ldx	#1
+	lda	(zp,x)
+	cmp	#23
+	beq	$+5
+	jmp	fail
 
+; lda zp
+
+	lda	#24
+	sta	zp
+	lda	#0
+	lda	zp
+	cmp	#24
+	beq	$+5
+	jmp	fail
+
+; lda #imm
+
+	lda	#25
+	cmp	#25
+	beq	$+5
+	jmp	fail
+
+; lda abs
+
+	lda	#26
+	sta	mem
+	lda	#0
+	lda	mem
+	cmp	#26
+	beq	$+5
+	jmp	fail
+
+; lda (zp),y
+
+	lda	#mem
+	sta	zp
+	lda	#mem>>8
+	sta	zp+1
+	lda	#27
+	sta	mem+7
+	lda	#0
+	ldy	#7
+	lda	(zp),y
+	cmp	#27
+	beq	$+5
+	jmp	fail
+
+; lda zp,x
+
+	lda	#28
+	sta	zp+9
+	lda	#0
+	ldx	#9
+	lda	zp,x
+	cmp	#28
+	beq	$+5
+	jmp	fail
+
+; lda abs,y
+
+	lda	#29
+	sta	mem+10
+	lda	#0
+	ldy	#10
+	lda	mem,y
+	cmp	#29
+	beq	$+5
+	jmp	fail
+
+; lda abs,x
+
+	lda	#30
+	sta	mem+11
+	lda	#0
+	ldx	#11
+	lda	mem,x
+	cmp	#30
+	beq	$+5
+	jmp	fail
+
+; cmp (zp,x)
+
+	lda	#mem
+	sta	zp+1
+	lda	#mem>>8
+	sta	zp+2
+	lda	#31
+	sta	mem
+	ldx	#1
+	cmp	(zp,x)
+	beq	$+5
+	jmp	fail
+
+; cmp zp
+
+	lda	#32
+	sta	zp
+	cmp	zp
+	beq	$+5
+	jmp	fail
+
+; cmp #imm
+
+	lda	#33
+	cmp	#33
+	beq	$+5
+	jmp	fail
+
+; cmp abs
+
+	lda	#34
+	sta	mem
+	cmp	mem
+	beq	$+5
+	jmp	fail
+
+; cmp (zp),y
+
+	lda	#mem
+	sta	zp
+	lda	#mem>>8
+	sta	zp+1
+	lda	#35
+	sta	mem+3
+	ldy	#3
+	cmp	(zp),y
+	beq	$+5
+	jmp	fail
+
+; cmp zp,x
+
+	lda	#36
+	sta	zp+4
+	ldx	#4
+	cmp	zp,x
+	beq	$+5
+	jmp	fail
+
+; cmp abs,y
+
+	lda	#37
+	sta	mem+8
+	ldy	#8
+	cmp	mem,y
+	beq	$+5
+	jmp	fail
+
+; cmp abs,x
+
+	lda	#38
+	sta	mem+7
+	ldx	#7
+	cmp	mem,x
+	beq	$+5
+	jmp	fail
 
 
 pass	lda	str1
