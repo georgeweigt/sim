@@ -63,10 +63,8 @@ scan_pseudo_op(struct sym *p)
 		scan_value();
 		if (where == UNDEF)
 			scan_error("unresolved symbol in ORG");
-		if (p) {
+		if (p)
 			p->value = value;
-			p->where = where;
-		}
 		curloc = value;
 		return;
 	}
