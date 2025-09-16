@@ -26,9 +26,11 @@ scan_line(void)
 		return;
 
 	if (token == T_LABEL) {
-		p = scan_add_symbol();
-		p->value = curloc;
-		p->where = curlin;
+		if (pass == 1) {
+			p = scan_add_symbol();
+			p->value = curloc;
+			p->where = curlin;
+		}
 		scan_token();
 	}
 
@@ -59,7 +61,7 @@ scan_pseudo_op(struct sym *p)
 	if (strcmp(tokenbuf, ".org") == 0) {
 		scan_token();
 		scan_value();
-		if (where == 0)
+		if (where == UNDEF)
 			scan_error("unresolved symbol in ORG");
 		if (p) {
 			p->value = value;
@@ -69,26 +71,13 @@ scan_pseudo_op(struct sym *p)
 		return;
 	}
 
-	if (strcmp(tokenbuf, ".def") == 0) {
-		scan_token();
-		if (token != T_NAME)
-			scan_error("syntax error, symbol expected after DEF");
-		p = scan_add_symbol();
-		p->value = 0;
-		p->where = curlin;
-		scan_token();
-		scan_value();
-		p->value = value;
-		p->where = where;
+	if (strcmp(tokenbuf, ".bss") == 0) {
+		scan_bss();
 		return;
 	}
 
-	if (strcmp(tokenbuf, ".bss") == 0) {
-		scan_token();
-		scan_value();
-		if (where == 0)
-			scan_error("unresolved symbol in BSS");
-		curloc += value;
+	if (strcmp(tokenbuf, ".def") == 0) {
+		scan_def();
 		return;
 	}
 
@@ -103,6 +92,78 @@ scan_pseudo_op(struct sym *p)
 	}
 
 	scan_error("unsupported pseudo-op");
+}
+
+void
+scan_bss(void)
+{
+	scan_token();
+	scan_value();
+
+	if (where == UNDEF)
+		scan_error("unresolved symbol in BSS");
+
+	curloc += value;
+}
+
+
+void
+scan_def(void)
+{
+	struct sym *p;
+
+	scan_token();
+
+	if (pass == 2) {
+		scan_token();
+		scan_value();
+		return;
+	}
+
+	if (token != T_NAME)
+		scan_error("syntax error, symbol expected after DEF");
+
+	p = scan_add_symbol();
+
+	p->value = 0;
+	p->where = UNDEF;
+
+	scan_token();
+	scan_value();
+
+	if (where == UNDEF)
+		scan_error("unresolved symbol in DEF");
+
+	p->value = value;
+	p->where = curlin;
+}
+
+void
+scan_byte(void)
+{
+	char *s;
+	do {
+		scan_token();
+		if (token == T_QUOSTR) {
+			s = tokenbuf;
+			while (*s)
+				scan_emit_byte(*s++);
+			scan_token();
+		} else {
+			scan_value();
+			scan_emit_byte(value);
+		}
+	} while (token == ',');
+}
+
+void
+scan_word(void)
+{
+	do {
+		scan_token();
+		scan_value();
+		scan_emit_word(value);
+	} while (token == ',');
 }
 
 void
@@ -409,22 +470,28 @@ scan_add_symbol(void)
 {
 	int i, k;
 	struct sym *p;
+
 	k = tolower(*tokenbuf) - 'a';
+
 	for (i = 0; i < NSYM; i++) {
+
 		p = &stab[k][i];
+
 		if (p->name == NULL)
 			break;
-		if (strcmp(p->name, tokenbuf) == 0) {
-			if (pass == 1)
-				scan_error("symbol redefined");
-			return p;
-		}
+
+		if (strcmp(p->name, tokenbuf) == 0)
+			scan_error("symbol or label is already defined");
 	}
+
 	if (i == NSYM)
 		scan_error("symbol table full");
+
 	p->name = strdup(tokenbuf);
+
 	if (p->name == NULL)
 		scan_error("strdup kaput");
+
 	return p;
 }
 
@@ -595,14 +662,14 @@ scan_factor(void)
 
 	case T_NAME:
 		p = scan_lookup();
-		if (p && p->where) {
+		if (p) {
 			stack_push(p->value);
-			if (where && p->where > where)
+			if (p->where > where)
 				where = p->where;
 		} else {
 			if (pass == 2)
 				scan_error("undefined symbol");
-			where = 0; // forward ref
+			where = UNDEF; // forward ref
 			stack_push(0); // dummy value
 		}
 		break;
@@ -801,7 +868,7 @@ scan_branch(void)
 void
 scan_value(void)
 {
-	where = curlin;
+	where = 0;
 	stackindex = 0;
 	scan_expr();
 	value = stack_pop();
@@ -1832,34 +1899,6 @@ scan_emit(int opcode, int count)
 	while (*s && *s != '\n')
 		putchar(*s++);
 	putchar('\n');
-}
-
-void
-scan_byte(void)
-{
-	char *s;
-	do {
-		scan_token();
-		if (token == T_QUOSTR) {
-			s = tokenbuf;
-			while (*s)
-				scan_emit_byte(*s++);
-			scan_token();
-		} else {
-			scan_value();
-			scan_emit_byte(value);
-		}
-	} while (token == ',');
-}
-
-void
-scan_word(void)
-{
-	do {
-		scan_token();
-		scan_value();
-		scan_emit_word(value);
-	} while (token == ',');
 }
 
 void

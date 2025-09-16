@@ -248,4 +248,6 @@ extern uint16_t pc;
 #define OP_DEX   0xca
 #define OP_NOP   0xea
 
-#define ZPADDR (where > 0 && where <= curlin && value < 256)
+#define ZPADDR (where <= curlin && value < 256)
+
+#define UNDEF 1000000

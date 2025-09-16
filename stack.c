@@ -55,7 +55,7 @@ stack_div(void)
 	if (stackindex < 2)
 		scan_error("stack underflow");
 	stackindex--;
-	if (where == 0)
+	if (where == UNDEF)
 		return; // dummy value on stack, might be zero
 	if (stack[stackindex] == 0)
 		scan_error("divide by zero");
@@ -68,7 +68,7 @@ stack_rem(void)
 	if (stackindex < 2)
 		scan_error("stack underflow");
 	stackindex--;
-	if (where == 0)
+	if (where == UNDEF)
 		return; // dummy value on stack, might be zero
 	if (stack[stackindex] == 0)
 		scan_error("divide by zero");
