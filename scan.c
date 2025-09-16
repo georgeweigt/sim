@@ -229,7 +229,9 @@ scan_line(void)
 		return;
 
 	if (token == T_LABEL) {
-		p = scan_label();
+		p = scan_name();
+		p->value = curloc;
+		p->where = curlin;
 		scan_token();
 	}
 
@@ -267,6 +269,20 @@ scan_pseudo_op(struct sym *p)
 			p->where = where;
 		}
 		curloc = value;
+		return;
+	}
+
+	if (strcmp(tokenbuf, ".define") == 0) {
+		scan_token();
+		if (token != T_NAME)
+			scan_error("syntax error in DEF");
+		p = scan_name();
+		p->value = 0;
+		p->where = curlin;
+		scan_token();
+		scan_value();
+		p->value = value;
+		p->where = where;
 		return;
 	}
 
@@ -592,7 +608,7 @@ scan_opcode(void)
 }
 
 struct sym *
-scan_label(void)
+scan_name(void)
 {
 	int i, k;
 	struct sym *p;
@@ -612,8 +628,6 @@ scan_label(void)
 	p->name = strdup(tokenbuf);
 	if (p->name == NULL)
 		scan_error("strdup kaput");
-	p->value = curloc;
-	p->where = curlin;
 	return p;
 }
 

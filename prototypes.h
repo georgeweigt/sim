@@ -171,7 +171,7 @@ void scan_file(int k);
 void scan_line(void);
 void scan_pseudo_op(struct sym *p);
 void scan_opcode(void);
-struct sym * scan_label(void);
+struct sym * scan_name(void);
 void scan_addr(void);
 void scan_expr(void);
 void scan_term(void);
