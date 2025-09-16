@@ -602,7 +602,7 @@ scan_factor(void)
 		} else {
 			if (pass == 2)
 				scan_error("undefined symbol");
-			where = 0; // forward defn
+			where = 0; // forward ref
 			stack_push(0); // dummy value
 		}
 		break;

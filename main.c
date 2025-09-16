@@ -8,7 +8,7 @@ main(int argc, char *argv[])
 		return 1;
 	mem = malloc(65536);
 	if (mem == NULL) {
-		printf("malloc kaput");
+		printf("malloc kaput\n");
 		return 1;
 	}
 	scan_file(1);
