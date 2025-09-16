@@ -2,10 +2,13 @@ void
 scan_file(int k)
 {
 	pass = k;
+
 	start = -1;
 	curloc = 0x200;
 	curlin = 1;
+
 	scanptr = buf;
+
 	while (*scanptr) {
 		lineptr = scanptr;
 		scan_line();
