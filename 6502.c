@@ -142,7 +142,7 @@ void
 inc(uint32_t addr)
 {
 	uint8_t t;
-	t = mem[addr]++;
+	t = mem[addr] + 1;
 	zf = t ? 0 : 1;
 	nf = (t & 0x80) ? 1 : 0;
 	st(addr, t);
@@ -152,7 +152,7 @@ void
 dec(uint32_t addr)
 {
 	uint8_t t;
-	t = mem[addr]--;
+	t = mem[addr] - 1;
 	zf = t ? 0 : 1;
 	nf = (t & 0x80) ? 1 : 0;
 	st(addr, t);

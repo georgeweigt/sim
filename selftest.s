@@ -932,6 +932,110 @@ zp	equ	$10
 	beq	$+5
 	jmp	fail
 
+; stx zp
+
+	lda	#0
+	ldx	#57
+	stx	zp
+	lda	zp
+	cmp	#57
+	beq	$+5
+	jmp	fail
+
+; stx abs
+
+	lda	#0
+	ldx	#57
+	stx	mem
+	lda	mem
+	cmp	#57
+	beq	$+5
+	jmp	fail
+
+; stx zp,x (actually uses y)
+
+	lda	#0
+	ldx	#61
+	ldy	#1
+	stx	zp,x	; zp,x
+	lda	zp+1
+	cmp	#61
+	beq	$+5
+	jmp	fail
+
+	lda	#0
+	ldx	#62
+	ldy	#1
+	stx	zp,y	; zp,y
+	lda	zp+1
+	cmp	#62
+	beq	$+5
+	jmp	fail
+
+; ldx #imm
+
+	lda	#0
+	ldx	#57
+	stx	zp
+	lda	zp
+	cmp	#57
+	beq	$+5
+	jmp	fail
+
+; ldx zp
+
+	lda	#11
+	sta	zp
+	ldx	zp
+	txa
+	cmp	#11
+	beq	$+5
+	jmp	fail
+
+; ldx abs
+
+	lda	#21
+	sta	mem
+	lda	#0
+	ldx	mem
+	txa
+	cmp	#21
+	beq	$+5
+	jmp	fail
+
+; ldx zp,x (register y)
+
+	lda	#22
+	sta	zp+1
+	ldy	#1
+	ldx	zp,x
+	lda	#0	
+	txa
+	cmp	#22
+	beq	$+5
+	jmp	fail
+
+; ldx abs,x (register y)
+
+	lda	#23
+	sta	mem+3
+	ldy	#3
+	ldx	mem,x
+	txa
+	cmp	#23
+	beq	$+5
+	jmp	fail
+
+; dec zp
+
+	lda	#10
+	sta	zp
+	dec	zp
+	lda	zp
+	cmp	#9
+	beq	$+5
+	jmp	fail
+
 pass	lda	str1
 	sta	putc
 	sta	halt
