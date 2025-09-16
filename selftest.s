@@ -2,7 +2,7 @@ halt	equ	$fff0
 putc	equ	$fff1
 puts	equ	$fff2
 
-zp	equ	$10
+zp	equ	0
 
 ; ora (zp,x)
 
@@ -1316,7 +1316,7 @@ y2
 	beq	$+5
 	jmp	fail
 
-; brk FIXME brk causing memory corruption
+; brk FIXME brk caused memory corruption, now seems fixed
 
 ;	lda	#y3
 ;	sta	$fffe

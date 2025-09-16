@@ -1045,7 +1045,7 @@ func_jsr(void)
 
 	t = pc; // t is addr of first byte following jsr opcode
 
-	pc = mem[pc] | mem[pc + 1] << 8;
+	pc = mem[pc] | mem[(pc + 1) & 0xffff] << 8;
 
 	// halt
 
@@ -1064,7 +1064,7 @@ func_jsr(void)
 
 	if (pc == 0xfff2) {
 		pc = t + 4;
-		t = mem[pc - 2] | mem[pc - 1] << 8;
+		t = mem[(pc - 2) & 0xffff] | mem[(pc - 1) & 0xffff] << 8;
 		while (mem[t])
 			putchar(mem[t++]);
 		return;
@@ -1072,32 +1072,32 @@ func_jsr(void)
 
 	// return address
 
-	mem[0x100 + --sp] = (t + 1) >> 8;
-	mem[0x100 + --sp] = t + 1;
+	sp -= 2;
+
+	mem[0x100 + sp] = t + 1;
+	mem[0x100 + ((sp + 1) & 0xff)] = (t + 1) >> 8;
 }
 
 void
 func_rts(void)
 {
-	pc = mem[0x100 + sp++];
-	pc |= mem[0x100 + sp++] << 8;
-	pc++;
+	pc = (mem[0x100 + sp] | mem[0x100 + ((sp + 1) & 0xff)] << 8) + 1;
+	sp += 2;
 }
 
 void
 func_rti(void)
 {
 	uint8_t t;
-	t = mem[0x100 + sp++];
+	t = mem[0x100 + sp];
 	nf = (t & 0x80) ? 1 : 0;
 	of = (t & 0x40) ? 1 : 0;
 	df = (t & 0x08) ? 1 : 0;
 	id = (t & 0x04) ? 1 : 0;
 	zf = (t & 0x02) ? 1 : 0;
 	cf = (t & 0x01) ? 1 : 0;
-	pc = mem[0x100 + sp++];
-	pc |= mem[0x100 + sp++] << 8;
-	pc++;
+	pc = (mem[0x100 + ((sp + 1) & 0xff)] | mem[0x100 + ((sp + 2) & 0xff)] << 8) + 1;
+	sp += 3;
 }
 
 void
@@ -1214,11 +1214,12 @@ func_tsx(void)
 	nf = (x & 0x80) ? 0 : 1;
 }
 
+// no flags affected
+
 void
 func_txs(void)
 {
-	sp = x;
-	// no flags are affected
+	sp = x; 
 }
 
 void
@@ -1269,18 +1270,23 @@ func_beq(void)
 	br(zf);
 }
 
+// BRK and PHP push B=1, IRQ and NMI push B=0
+
 void
 func_php(void)
 {
-	// BRK and PHP push B=1, IRQ and NMI push B=0
-	mem[0x100 + --sp] = nf << 7 | of << 6 | 1 << 5 | 1 << 4 | df << 3 | id << 2 | zf << 1 | cf;
+	sp--;
+	mem[0x100 + sp] = nf << 7 | of << 6 | 1 << 5 | 1 << 4 | df << 3 | id << 2 | zf << 1 | cf;
 }
 
 void
 func_plp(void)
 {
 	uint8_t t;
-	t = mem[0x100 + sp++];
+
+	t = mem[0x100 + sp];
+	sp++;
+
 	nf = (t & 0x80) ? 1 : 0;
 	of = (t & 0x40) ? 1 : 0;
 	df = (t & 0x08) ? 1 : 0;
@@ -1292,26 +1298,38 @@ func_plp(void)
 void
 func_pha(void)
 {
-	mem[0x100 + --sp] = acc;
+	sp--;
+	mem[0x100 + sp] = acc;
 }
 
 void
 func_pla(void)
 {
-	acc = mem[0x100 + sp++];
+	acc = mem[0x100 + sp];
+	sp++;
 	zf = acc ? 0 : 1;
 	nf = (acc & 0x80) ? 1 : 0;
 }
+
+// BRK and PHP push B=1, IRQ and NMI push B=0
 
 void
 func_brk(void)
 {
 	pc -= 1;
-	mem[0x100 + --sp] = pc >> 8;
-	mem[0x100 + --sp] = pc;
-	// BRK and PHP push B=1, IRQ and NMI push B=0
-	mem[0x100 + --sp] = nf << 7 | of << 6 | 1 << 5 | 1 << 4 | df << 3 | id << 2 | zf << 1 | cf;
+	sp -= 3;
+
+	// return address
+
+	mem[0x100 + ((sp + 1) & 0xff)] = pc;
+	mem[0x100 + ((sp + 2) & 0xff)] = pc >> 8;
+
+	// flags
+
+	mem[0x100 + sp] = nf << 7 | of << 6 | 1 << 5 | 1 << 4 | df << 3 | id << 2 | zf << 1 | cf;
+
 	pc = mem[0xfffe] | mem[0xffff] << 8;
+
 	id = 1;
 }
 
