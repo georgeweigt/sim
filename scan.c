@@ -272,10 +272,10 @@ scan_pseudo_op(struct sym *p)
 		return;
 	}
 
-	if (strcmp(tokenbuf, ".define") == 0) {
+	if (strcmp(tokenbuf, ".def") == 0) {
 		scan_token();
 		if (token != T_NAME)
-			scan_error("syntax error in DEF");
+			scan_error("syntax error, symbol expected after DEF");
 		p = scan_name();
 		p->value = 0;
 		p->where = curlin;
