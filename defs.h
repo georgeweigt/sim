@@ -12,9 +12,10 @@
 struct sym {
 	char *name;
 	int value;
-	int where; // line number
+	int where; // line number where symbol defined
 };
 
+extern struct sym stab[26][NSYM];
 extern void (*ftab[256])(void);
 extern char *buf;
 extern int buflen;
@@ -28,7 +29,6 @@ extern int addrmode;
 extern int value;
 extern int pass;
 extern int where;
-extern struct sym stab[26][NSYM];
 extern int stack[STACKSIZE];
 extern int stackindex;
 extern int curloc;
@@ -167,7 +167,7 @@ extern uint16_t pc;
 
 #define STX_ZP   0x86
 #define STX_ABS  0x8e
-#define STX_ABSX 0x96
+#define STX_ZPX  0x96
 
 #define LDX_IMM  0xa2
 #define LDX_ZP   0xa6

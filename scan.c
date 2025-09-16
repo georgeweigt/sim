@@ -13,7 +13,7 @@ scan_file(int k)
 		lineptr = scanptr;
 		scan_line();
 		if (token != T_LF)
-			scan_error("unexpected text at end of line");
+			scan_error("Unexpected text at end of line");
 		curlin++;
 	}
 }
@@ -356,7 +356,7 @@ scan_line(void)
 	}
 
 	if (err)
-		scan_error("syntax error");
+		scan_error("Syntax error");
 }
 
 struct sym *
@@ -375,11 +375,11 @@ scan_add_symbol(void)
 			break;
 
 		if (strcmp(p->name, tokenbuf) == 0)
-			scan_error("symbol or label is already defined");
+			scan_error("Can't redefine symbol or label");
 	}
 
 	if (i == NSYM)
-		scan_error("symbol table full");
+		scan_error("Symbol table full");
 
 	p->name = strdup(tokenbuf);
 
@@ -411,7 +411,7 @@ scan_addr(void)
 		scan_token();
 		scan_value();
 		if (pass == 2 && value > 255)
-			scan_error("operand not in zero page");
+			scan_error("Operand not in zero page");
 		switch (token) {
 		case ',':
 			scan_token();
@@ -434,7 +434,7 @@ scan_addr(void)
 			addrmode = AM_ZPIY;
 			return;
 		}
-		scan_error("expected format (ZP,X) or (ZP),Y");
+		scan_error("Expected indirect form (ZP,X) or (ZP),Y");
 		return;
 	}
 
@@ -453,7 +453,7 @@ scan_addr(void)
 			addrmode = AM_ABSY;
 			break;
 		default:
-			scan_error("expected format ABS,X or ABS,Y");
+			scan_error("Expected index X or Y after comma");
 			break;
 		}
 	} else
@@ -547,7 +547,7 @@ scan_factor(void)
 		scan_token();
 		scan_expr();
 		if (token != ')')
-			scan_error("')' expected");
+			scan_error("Expected closing paren ')'");
 		break;
 
 	case T_CURLOC:
@@ -562,7 +562,7 @@ scan_factor(void)
 				where = p->where;
 		} else {
 			if (pass == 2)
-				scan_error("undefined symbol");
+				scan_error("Undefined symbol");
 			where = UNDEF; // forward ref
 			stack_push(0); // dummy value
 		}
@@ -588,7 +588,7 @@ scan_factor(void)
 		break;
 
 	default:
-		scan_error("syntax error");
+		scan_error("Syntax error");
 		break;
 	}
 
@@ -666,7 +666,7 @@ scan_token(void)
 			}
 		}
 		if (tokenlen > TOKENBUFLEN)
-			scan_error("too long");
+			scan_error("Too long");
 		memcpy(tokenbuf, tokenptr, tokenlen);
 		tokenbuf[tokenlen] = 0;
 		if (lineptr - tokenptr == 0) {
@@ -683,7 +683,7 @@ scan_token(void)
 			scanptr++;
 		tokenlen = scanptr - tokenptr;
 		if (tokenlen > TOKENBUFLEN)
-			scan_error("too long");
+			scan_error("Too long");
 		memcpy(tokenbuf, tokenptr, tokenlen);
 		tokenbuf[tokenlen] = 0;
 		token = T_DECSTR;
@@ -697,7 +697,7 @@ scan_token(void)
 				scanptr++;
 			tokenlen = scanptr - tokenptr - 1;
 			if (tokenlen > TOKENBUFLEN)
-				scan_error("too long");
+				scan_error("Too long");
 			memcpy(tokenbuf, tokenptr + 1, tokenlen);
 			tokenbuf[tokenlen] = 0;
 			token = T_HEXSTR;
@@ -711,11 +711,11 @@ scan_token(void)
 		while (*scanptr && *scanptr != '"' && *scanptr != '\n')
 			scanptr++;
 		if (*scanptr != '"')
-			scan_error("runaway string");
+			scan_error("Runaway string");
 		scanptr++;
 		tokenlen = scanptr - tokenptr - 2;
 		if (tokenlen > TOKENBUFLEN)
-			scan_error("too long");
+			scan_error("Too long");
 		memcpy(tokenbuf, tokenptr + 1, tokenlen);
 		tokenbuf[tokenlen] = 0;
 		token = T_QUOSTR;
@@ -742,9 +742,9 @@ void
 scan_branch(void)
 {
 	scan_value();
-	value = value - curloc - 2;
+	value = value - (curloc + 2);
 	if (pass == 2 && (value < -128 || value > 127))
-		scan_error("branch range error");
+		scan_error("Branch range error");
 }
 
 void
@@ -763,9 +763,9 @@ scan_org(struct sym *p)
 	scan_value();
 
 	if (where == UNDEF)
-		scan_error("unresolved symbol in ORG");
+		scan_error("Unresolved symbol in ORG");
 
-	if (pass == 1 && p)
+	if (p)
 		p->value = value;
 
 	curloc = value;
@@ -777,11 +777,8 @@ scan_equ(struct sym *p)
 	scan_token();
 	scan_value();
 
-	if (pass == 2)
-		return;
-
 	if (where == UNDEF)
-		scan_error("unresolved symbol in EQU");
+		scan_error("Unresolved symbol in EQU");
 
 	if (p)
 		p->value = value;
@@ -794,7 +791,7 @@ scan_bss(void)
 	scan_value();
 
 	if (where == UNDEF)
-		scan_error("unresolved symbol in BSS");
+		scan_error("Unresolved symbol in BSS");
 
 	curloc += value;
 }
@@ -866,7 +863,7 @@ scan_adc(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for ADC");
 		break;
 	}
 }
@@ -910,7 +907,7 @@ scan_and(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for AND");
 		break;
 	}
 }
@@ -942,7 +939,7 @@ scan_asl(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for ASL");
 		break;
 	}
 }
@@ -987,7 +984,7 @@ scan_bit(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for BIT");
 		break;
 	}
 }
@@ -1106,7 +1103,7 @@ scan_cmp(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for CMP");
 		break;
 	}
 }
@@ -1131,7 +1128,7 @@ scan_cpx(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for CPX");
 		break;
 	}
 }
@@ -1156,7 +1153,7 @@ scan_cpy(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for CPY");
 		break;
 	}
 }
@@ -1184,7 +1181,7 @@ scan_dec(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for DEC");
 		break;
 	}
 }
@@ -1242,7 +1239,7 @@ scan_eor(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for EOR");
 		break;
 	}
 }
@@ -1270,7 +1267,7 @@ scan_inc(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for INC");
 		break;
 	}
 }
@@ -1297,7 +1294,7 @@ scan_jmp(void)
 		scan_token();
 		scan_value();
 		if (token != ')')
-			scan_error("closing ) expected");
+			scan_error("Expected closing paren ')'");
 		scan_token();
 		scan_emit(OP_JMPI, 3);
 	} else {
@@ -1353,7 +1350,7 @@ scan_lda(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for LDA");
 		break;
 	}
 }
@@ -1386,7 +1383,7 @@ scan_ldx(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for LDX");
 		break;
 	}
 }
@@ -1418,7 +1415,7 @@ scan_ldy(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for LDY");
 		break;
 	}
 }
@@ -1450,7 +1447,7 @@ scan_lsr(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for LSR");
 		break;
 	}
 }
@@ -1501,7 +1498,7 @@ scan_ora(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for ORA");
 		break;
 	}
 }
@@ -1561,7 +1558,7 @@ scan_rol(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for ROL");
 		break;
 	}
 }
@@ -1593,7 +1590,7 @@ scan_ror(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for ROR");
 		break;
 	}
 }
@@ -1651,7 +1648,7 @@ scan_sbc(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for SBC");
 		break;
 	}
 }
@@ -1712,7 +1709,7 @@ scan_sta(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for STA");
 		break;
 	}
 }
@@ -1727,21 +1724,21 @@ scan_stx(void)
 
 	case AM_ABS:
 		if (ZPADDR)
-			scan_emit(LDX_ZP, 2);
+			scan_emit(STX_ZP, 2);
 		else
-			scan_emit(LDX_ABS, 3);
+			scan_emit(STX_ABS, 3);
 		break;
 
 	case AM_ABSX:
 	case AM_ABSY:
 		if (ZPADDR)
-			scan_emit(LDX_ZPX, 2);
+			scan_emit(STX_ZPX, 2);
 		else
-			scan_error("STX with X requires zero page address");
+			scan_error("Zero page address required for STX with X");
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for STX");
 		break;
 	}
 }
@@ -1769,7 +1766,7 @@ scan_sty(void)
 		break;
 
 	default:
-		scan_error("address mode error");
+		scan_error("Address mode error for STY");
 		break;
 	}
 }
