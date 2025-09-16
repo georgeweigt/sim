@@ -1,5 +1,7 @@
-putc	equ	$fff0
-halt	equ	$fff1
+halt	equ	$fff0
+putc	equ	$fff1
+puts	equ	$fff2
+
 zp	equ	$10
 
 ; ora (zp,x)
@@ -1208,15 +1210,65 @@ y2
 	beq	$+5
 	jmp	fail
 
-pass	lda	str1
-	sta	putc
-	sta	halt
+; cpy #imm
 
-fail	lda	str2
-	sta	putc
-	sta	halt
+	ldy	#5
+	cpy	#5
+	beq	$+5
+	jmp	fail
 
-str1	byte	"pass"
-str2	byte	"fail"
+; cpy zp
+
+	ldy	#4
+	lda	#4
+	sta	zp
+	cpy	zp
+	beq	$+5
+	jmp	fail
+
+; cpy abs
+
+	ldy	#9
+	lda	#9
+	sta	mem
+	cpy	mem
+	beq	$+5
+	jmp	fail
+
+; cpx #imm
+
+	ldx	#5
+	cpx	#5
+	beq	$+5
+	jmp	fail
+
+; cpx zp
+
+	ldx	#4
+	lda	#4
+	sta	zp
+	cpx	zp
+	beq	$+5
+	jmp	fail
+
+; cpx abs
+
+	ldx	#9
+	lda	#9
+	sta	mem
+	cpx	mem
+	beq	$+5
+	jmp	fail
+
+pass	jsr	puts
+	word	str1
+	jsr	halt
+
+fail	jsr	puts
+	word	str2
+	jsr	halt
+
+str1	byte	"pass",10,0
+str2	byte	"fail",10,0
 
 mem	equ	$

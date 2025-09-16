@@ -1,14 +1,14 @@
-putc	equ	$fff0
-halt	equ	$fff1
+halt	equ	$fff0
+putc	equ	$fff1
 
 	org	$200
 
 	ldx	#0
 loop	lda	str,x
 	beq	done
-	sta	putc	; write to console
+	jsr	putc	; write to console
 	inx
 	jmp	loop
-done	sta	halt
+done	jsr	halt
 
 str	byte	"hello",10,0

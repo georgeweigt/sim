@@ -9,7 +9,7 @@
 #define STACKSIZE 100
 #define TOKENBUFLEN 100
 
-#define TRACE printf("%s\n", __FUNCTION__);
+#define TRACE printf("%s %d\n", __FUNCTION__, __LINE__);
 
 struct sym {
 	char *name;

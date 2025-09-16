@@ -72,10 +72,6 @@ void
 st(uint32_t addr, uint32_t val)
 {
 	mem[addr] = val;
-	if (addr == 0xfff0)
-		putchar(val);
-	if (addr == 0xfff1)
-		exit(1);
 }
 
 void
@@ -1046,10 +1042,38 @@ void
 func_jsr(void)
 {
 	uint16_t t;
-	t = pc + 1;
-	pc = mem[pc] | mem[t] << 8;
-	mem[0x100 + --sp] = t >> 8;
-	mem[0x100 + --sp] = t;
+
+	t = pc; // t is addr of first byte following jsr opcode
+
+	pc = mem[pc] | mem[pc + 1] << 8;
+
+	// halt
+
+	if (pc == 0xfff0)
+		exit(1);
+
+	// putc
+
+	if (pc == 0xfff1) {
+		pc = t + 2;
+		putchar(acc);
+		return;
+	}
+
+	// puts
+
+	if (pc == 0xfff2) {
+		pc = t + 4;
+		t = mem[pc - 2] | mem[pc - 1] << 8;
+		while (mem[t])
+			putchar(mem[t++]);
+		return;
+	}
+
+	// return address
+
+	mem[0x100 + --sp] = (t + 1) >> 8;
+	mem[0x100 + --sp] = t + 1;
 }
 
 void
