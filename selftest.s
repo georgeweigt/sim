@@ -1260,6 +1260,307 @@ y2
 	beq	$+5
 	jmp	fail
 
+; bpl
+
+	lda	#1
+	bpl	$+5
+	jmp	fail
+
+; bmi
+
+	lda	#-1
+	bmi	$+5
+	jmp	fail
+
+; bvc
+
+	lda	#$7e
+	clc
+	adc	#1
+	bvc	$+5
+	jmp	fail
+
+; bvs
+
+	lda	#$7e
+	sec
+	adc	#1
+	bvs	$+5
+	jmp	fail
+
+; bcc
+
+	lda	#1
+	clc
+	adc	#$fe
+	bcc	$+5
+	jmp	fail
+
+; bcs
+
+	lda	#1
+	sec
+	adc	#$fe
+	bcs	$+5
+	jmp	fail
+
+; bne
+
+	lda	#1
+	bne	$+5
+	jmp	fail
+
+; beq
+
+	lda	#0
+	beq	$+5
+	jmp	fail
+
+; brk FIXME brk causing memory corruption
+
+;	lda	#y3
+;	sta	$fffe
+;	lda	#y3>>8
+;	sta	$ffff
+;	brk
+;	jmp	y4
+;y3	nop
+;	rti
+;y4
+
+; bit zp
+
+	lda	#$c0
+	sta	zp
+	lda	#0
+	bit	zp
+	bmi	$+5
+	jmp	fail
+	bvs	$+5
+	jmp	fail
+	beq	$+5
+	jmp	fail
+
+; bit abs
+
+	lda	#$c0
+	sta	mem
+	lda	#0
+	bit	mem
+	bmi	$+5
+	jmp	fail
+	bvs	$+5
+	jmp	fail
+	beq	$+5
+	jmp	fail
+
+; php
+
+	clc
+	php
+	pla
+	and	#1
+	beq	$+5
+	jmp	fail
+	sec
+	php
+	pla
+	and	#1
+	bne	$+5
+	jmp	fail
+
+; plp
+
+	lda	#0
+	pha
+	plp
+	bcc	$+5
+	jmp	fail
+	lda	#1
+	pha
+	plp
+	bcs	$+5
+	jmp	fail
+
+; pha
+
+	lda	#33
+	pha
+	cmp	$1ff
+	beq	$+5
+	jmp	fail
+	pla
+
+; pla
+
+	lda	#0
+	pha
+	lda	#57
+	sta	$1ff
+	lda	#0
+	pla
+	cmp	#57
+	beq	$+5
+	jmp	fail
+
+; inx
+
+	lda	#0
+	ldx	#1
+	inx
+	txa
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; iny
+
+	lda	#0
+	ldy	#1
+	iny
+	tya
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; dex
+
+	lda	#0
+	ldx	#2
+	dex
+	txa
+	cmp	#1
+	beq	$+5
+	jmp	fail
+
+; dey
+
+	lda	#0
+	ldy	#2
+	dey
+	tya
+	cmp	#1
+	beq	$+5
+	jmp	fail
+
+; sed
+
+	sed
+	lda	#7
+	clc
+	adc	#8
+	cld
+	cmp	#$15
+	beq	$+5
+	jmp	fail
+
+; cld
+
+	sed
+	php
+	lda	$1ff
+	and	#8
+	bne	$+5
+	jmp	fail
+	pla
+	cld
+	php
+	lda	$1ff
+	and	#8
+	beq	$+5
+	jmp	fail
+	pla
+
+; clv
+
+	lda	#$7f
+	clc
+	adc	#1
+	clv
+	php
+	pla
+	and	#$40
+	beq	$+5
+	jmp	fail
+
+; sei
+
+	sei
+	php
+	pla
+	and	#4
+	bne	$+5
+	jmp	fail
+
+; cli
+
+	cli
+	php
+	pla
+	and	#4
+	beq	$+5
+	jmp	fail
+
+; tsx
+
+	pha
+	tsx
+	pla
+	cpx	#$ff
+	beq	$+5
+	jmp	fail
+
+; txs
+
+	ldx	#$80
+	txs
+	lda	#57
+	pha
+	lda	$17f
+	cmp	#57
+	beq	$+5
+	jmp	fail
+	ldx	#0
+	txs
+
+; tax
+
+	lda	#3
+	tax
+	lda	#19
+	sta	zp,x
+	lda	zp+3
+	cmp	#19
+	beq	$+5
+	jmp	fail
+
+; txa
+
+	ldx	#13
+	txa
+	cmp	#13
+	beq	$+5
+	jmp	fail
+
+; tay
+
+	lda	#3
+	tay
+	lda	#19
+	sta	mem,y
+	lda	mem+3
+	cmp	#19
+	beq	$+5
+	jmp	fail
+
+; tya
+
+	ldy	#13
+	tya
+	cmp	#13
+	beq	$+5
+	jmp	fail
+
 pass	jsr	puts
 	word	str1
 	jsr	halt

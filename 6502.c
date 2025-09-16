@@ -1306,7 +1306,7 @@ func_pla(void)
 void
 func_brk(void)
 {
-	pc++;
+	pc -= 1;
 	mem[0x100 + --sp] = pc >> 8;
 	mem[0x100 + --sp] = pc;
 	// BRK and PHP push B=1, IRQ and NMI push B=0
