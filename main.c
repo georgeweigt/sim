@@ -28,3 +28,9 @@ main(int argc, char *argv[])
 		func();
 	}
 }
+
+void
+trace(void)
+{
+	printf("%04x A=%02x X=%02x Y=%02x\n", (int) pc, (int) acc, (int) x, (int) y);
+}

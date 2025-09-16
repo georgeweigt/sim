@@ -166,6 +166,7 @@ void func_brk(void);
 void func_nop(void);
 void func_undef(void);
 int main(int argc, char *argv[]);
+void trace(void);
 int readfile(char *filename);
 void scan_file(int k);
 void scan_line(void);
