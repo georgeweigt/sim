@@ -474,6 +474,88 @@ zp	equ	$10
 	beq	$+5
 	jmp	fail
 
+; sta (zp,x)
+
+	lda	#mem
+	sta	zp+1
+	lda	#mem>>8
+	sta	zp+2
+	ldx	#1
+	lda	#15
+	sta	(zp,x)
+	lda	mem
+	cmp	#15
+	beq	$+5
+	jmp	fail
+
+; sta zp
+
+	lda	#17
+	sta	zp
+	lda	#0
+	lda	zp
+	cmp	#17
+	beq	$+5
+	jmp	fail
+
+; sta abs
+
+	lda	#18
+	sta	mem
+	lda	#0
+	lda	mem
+	cmp	#18
+	beq	$+5
+	jmp	fail
+
+; sta (zp),y
+
+	lda	#mem
+	sta	zp
+	lda	#mem>>8
+	sta	zp+1
+	ldy	#5
+	lda	#19
+	sta	(zp),y
+	lda	#0
+	lda	mem+5
+	cmp	#19
+	beq	$+5
+	jmp	fail
+
+; sta zp,x
+
+	lda	#20
+	ldx	#5
+	sta	zp,x
+	lda	#0
+	lda	zp+5
+	cmp	#20
+	beq	$+5
+	jmp	fail
+
+; sta abs,y
+
+	lda	#21
+	ldy	#1
+	sta	mem,y
+	lda	#0
+	lda	mem+1
+	cmp	#21
+	beq	$+5
+	jmp	fail
+
+; sta abs,x
+
+	lda	#22
+	ldx	#3
+	sta	mem,x
+	lda	#0
+	lda	mem+3
+	cmp	#22
+	beq	$+5
+	jmp	fail
+
 
 
 
