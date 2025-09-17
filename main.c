@@ -35,7 +35,7 @@ main(int argc, char *argv[])
 			break;
 		}
 
-		if (topt && pc == tp)
+		if (aopt || (topt && pc == tp))
 			trace();
 
 		func = ftab[mem[pc++]];
@@ -60,6 +60,11 @@ opt(int argc, char *argv[])
 	while (k < argc) {
 
 		s = argv[k++];
+
+		if (strcmp(s, "-a") == 0) {
+			aopt = 1;
+			continue;
+		}
 
 		if (strcmp(s, "-l") == 0) {
 			lopt = 1;

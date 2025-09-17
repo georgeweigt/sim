@@ -241,6 +241,55 @@ zp	equ	0
 	beq	$+5
 	jmp	fail
 
+; more tests
+
+	lda	#$ff
+	clc
+	asl	a
+	bcs	$+5
+	jmp	fail
+	bmi	$+5
+	jmp	fail
+	cmp	#$fe
+	beq	$+5
+	jmp	fail
+
+	lda	#$7f
+	sec
+	asl	a
+	bcc	$+5
+	jmp	fail
+	bmi	$+5
+	jmp	fail
+	cmp	#$fe
+	beq	$+5
+	jmp	fail
+
+	lda	#$ff
+	sta	zp
+	clc
+	asl	zp
+	bcs	$+5
+	jmp	fail
+	bmi	$+5
+	jmp	fail
+	lda	zp
+	cmp	#$fe
+	beq	$+5
+	jmp	fail
+
+	lda	#$7f
+	sta	zp
+	sec
+	asl	zp
+	bcc	$+5
+	jmp	fail
+	bmi	$+5
+	jmp	fail
+	lda	zp
+	cmp	#$fe
+	beq	$+5
+	jmp	fail
 ; bcc
 
 	lda	#1
@@ -980,6 +1029,55 @@ jsr2
 	beq	$+5
 	jmp	fail
 
+; more tests
+
+	lda	#$ff
+	clc
+	lsr	a
+	bcs	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
+	cmp	#$7f
+	beq	$+5
+	jmp	fail
+
+	lda	#$fe
+	sec
+	lsr	a
+	bcc	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
+	cmp	#$7f
+	beq	$+5
+	jmp	fail
+
+	lda	#$ff
+	sta	zp
+	clc
+	lsr	zp
+	bcs	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
+	lda	zp
+	cmp	#$7f
+	beq	$+5
+	jmp	fail
+
+	lda	#$fe
+	sta	zp
+	sec
+	lsr	zp
+	bcc	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
+	lda	zp
+	cmp	#$7f
+	beq	$+5
+	jmp	fail
 	nop
 ; ora (zp,x)
 

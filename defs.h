@@ -37,6 +37,7 @@ extern int curloc;
 extern int curlin;
 extern int start;
 extern int lstloc;
+extern int aopt;
 extern int lopt;
 extern int bopt;
 extern int topt;

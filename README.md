@@ -12,6 +12,7 @@ To run a self test:
 Command line options:
 ```
 -l      Send a listing to stdout and exit
+-a      Trace all
 -b nnnn Set a breakpoint at hex address nnnn
 -t nnnn Set a tracepoint at hex address nnnn
 ```

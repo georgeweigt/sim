@@ -48,3 +48,52 @@
 	beq	$+5
 	jmp	fail
 
+; more tests
+
+	lda	#$ff
+	clc
+	asl	a
+	bcs	$+5
+	jmp	fail
+	bmi	$+5
+	jmp	fail
+	cmp	#$fe
+	beq	$+5
+	jmp	fail
+
+	lda	#$7f
+	sec
+	asl	a
+	bcc	$+5
+	jmp	fail
+	bmi	$+5
+	jmp	fail
+	cmp	#$fe
+	beq	$+5
+	jmp	fail
+
+	lda	#$ff
+	sta	zp
+	clc
+	asl	zp
+	bcs	$+5
+	jmp	fail
+	bmi	$+5
+	jmp	fail
+	lda	zp
+	cmp	#$fe
+	beq	$+5
+	jmp	fail
+
+	lda	#$7f
+	sta	zp
+	sec
+	asl	zp
+	bcc	$+5
+	jmp	fail
+	bmi	$+5
+	jmp	fail
+	lda	zp
+	cmp	#$fe
+	beq	$+5
+	jmp	fail

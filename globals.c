@@ -17,6 +17,7 @@ int curloc;
 int curlin;
 int start;
 int lstloc;
+int aopt;
 int lopt;
 int bopt;
 int topt;
