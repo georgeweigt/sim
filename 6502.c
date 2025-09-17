@@ -1056,20 +1056,24 @@ func_jsr(void)
 
 	switch (pc) {
 
-	case 0xfff0:
-		exit(1);
-		break;
+	// putc
 
 	case 0xfff1:
 		pc = t + 2;
 		putchar(acc);
 		break;
 
+	// puts
+
 	case 0xfff2:
 		pc = t + 4;
 		t = mem[(pc - 2) & 0xffff] | mem[(pc - 1) & 0xffff] << 8;
 		while (mem[t])
 			putchar(mem[t++]);
+		break;
+
+	default:
+		exit(1);
 		break;
 	}
 }

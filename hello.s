@@ -1,4 +1,4 @@
-halt	equ	$fff0
+exit	equ	$fff0
 putc	equ	$fff1
 
 	org	$200
@@ -9,6 +9,6 @@ loop	lda	str,x
 	jsr	putc	; write to console
 	inx
 	jmp	loop
-done	jsr	halt
+done	jsr	exit
 
 str	byte	"hello",10,0

@@ -1,4 +1,4 @@
-halt	equ	$fff0
+exit	equ	$fff0
 putc	equ	$fff1
 puts	equ	$fff2
 
@@ -1721,11 +1721,11 @@ rts1:
 	jmp	fail
 pass	jsr	puts
 	word	str1
-	jsr	halt
+	jsr	exit
 
 fail	jsr	puts
 	word	str2
-	jsr	halt
+	jsr	exit
 
 str1	byte	"pass",10,0
 str2	byte	"fail",10,0
