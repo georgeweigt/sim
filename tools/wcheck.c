@@ -75,7 +75,7 @@ check_line(char *buf)
 		return NULL; // comment line
 
 	if (strstr(buf, "  ") || strstr(buf, " \t") || strstr(buf, "\t "))
-		return "consecutive space";
+		return "consecutive spaces";
 
 	return NULL; // ok
 }

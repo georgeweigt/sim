@@ -1215,7 +1215,7 @@ func_tsx(void)
 void
 func_txs(void)
 {
-	sp = x; 
+	sp = x;
 }
 
 void
