@@ -1,0 +1,12 @@
+; pla
+
+	lda	#0
+	pha
+	lda	#57
+	sta	$1ff
+	lda	#0
+	pla
+	cmp	#57
+	beq	$+5
+	jmp	fail
+

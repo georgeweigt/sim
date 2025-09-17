@@ -1,0 +1,6 @@
+	lda	#(rts1-1)>>8
+	pha
+	lda	#rts1-1
+	pha
+	rts
+rts1:

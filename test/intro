@@ -1,0 +1,5 @@
+halt	equ	$fff0
+putc	equ	$fff1
+puts	equ	$fff2
+
+zp	equ	0

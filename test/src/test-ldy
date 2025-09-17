@@ -1,0 +1,54 @@
+; ldy #imm
+
+	ldy	#1
+	tya
+	cmp	#1
+	beq	$+5
+	jmp	fail
+
+; ldy zp
+
+	lda	#7
+	sta	zp
+	lda	#0
+	ldy	zp
+	tya
+	cmp	#7
+	beq	$+5
+	jmp	fail
+
+; ldy abs
+
+	lda	#5
+	sta	mem
+	lda	#0
+	ldy	mem
+	tya
+	cmp	#5
+	beq	$+5
+	jmp	fail
+
+; ldy zp,x
+
+	lda	#11
+	sta	zp+1
+	lda	#0
+	ldx	#1
+	ldy	zp,x
+	tya
+	cmp	#11
+	beq	$+5
+	jmp	fail
+
+; ldy abs,x
+
+	lda	#12
+	sta	mem+1
+	lda	#0
+	ldx	#1
+	ldy	mem,x
+	tya
+	cmp	#12
+	beq	$+5
+	jmp	fail
+

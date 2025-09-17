@@ -1,0 +1,9 @@
+; pha
+
+	lda	#33
+	pha
+	cmp	$1ff
+	beq	$+5
+	jmp	fail
+	pla
+

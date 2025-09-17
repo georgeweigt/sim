@@ -1,0 +1,55 @@
+; ror zp
+
+	lda	#4
+	sta	zp
+	clc
+	ror	zp
+	lda	zp
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; ror a
+
+	lda	#4
+	clc
+	ror	a
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; ror abs
+
+	lda	#4
+	sta	mem
+	clc
+	ror	mem
+	lda	mem
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; ror zp,x
+
+	lda	#4
+	sta	zp+1
+	ldx	#1
+	clc
+	ror	zp,x
+	lda	zp+1
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; ror abs,x
+
+	lda	#4
+	sta	mem+3
+	ldx	#3
+	clc
+	ror	mem,x
+	lda	mem+3
+	cmp	#2
+	beq	$+5
+	jmp	fail
+

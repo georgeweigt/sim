@@ -1,0 +1,6 @@
+; bne
+
+	lda	#1
+	bne	$+5
+	jmp	fail
+

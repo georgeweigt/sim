@@ -1,0 +1,10 @@
+; rti
+
+	lda	#(rti1-1)>>8
+	pha
+	lda	#rti1-1
+	pha
+	lda	#0
+	pha
+	rti
+rti1:

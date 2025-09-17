@@ -1,0 +1,40 @@
+; stx zp
+
+	lda	#0
+	ldx	#57
+	stx	zp
+	lda	zp
+	cmp	#57
+	beq	$+5
+	jmp	fail
+
+; stx abs
+
+	lda	#0
+	ldx	#57
+	stx	mem
+	lda	mem
+	cmp	#57
+	beq	$+5
+	jmp	fail
+
+; stx zp,x (actually uses y)
+
+	lda	#0
+	ldx	#61
+	ldy	#1
+	stx	zp,x	; zp,x
+	lda	zp+1
+	cmp	#61
+	beq	$+5
+	jmp	fail
+
+	lda	#0
+	ldx	#62
+	ldy	#1
+	stx	zp,y	; zp,y
+	lda	zp+1
+	cmp	#62
+	beq	$+5
+	jmp	fail
+

@@ -1,0 +1,6 @@
+	sec
+	php
+	pla
+	and	#1
+	bne	$+5
+	jmp	fail

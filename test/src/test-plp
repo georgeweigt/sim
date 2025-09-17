@@ -1,0 +1,13 @@
+; plp
+
+	lda	#0
+	pha
+	plp
+	bcc	$+5
+	jmp	fail
+	lda	#1
+	pha
+	plp
+	bcs	$+5
+	jmp	fail
+

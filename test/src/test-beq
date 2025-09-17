@@ -1,0 +1,6 @@
+; beq
+
+	lda	#0
+	beq	$+5
+	jmp	fail
+

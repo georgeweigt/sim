@@ -1,0 +1,9 @@
+; sei
+
+	sei
+	php
+	pla
+	and	#4
+	bne	$+5
+	jmp	fail
+

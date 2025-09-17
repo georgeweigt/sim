@@ -1,0 +1,10 @@
+; inx
+
+	lda	#0
+	ldx	#1
+	inx
+	txa
+	cmp	#2
+	beq	$+5
+	jmp	fail
+

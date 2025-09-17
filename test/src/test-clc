@@ -1,0 +1,6 @@
+	clc
+	php
+	pla
+	and	#1
+	beq	$+5
+	jmp	fail

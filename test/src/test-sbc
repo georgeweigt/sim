@@ -1,0 +1,99 @@
+; sbc (zp,x)
+
+	lda	#mem
+	sta	zp+1
+	lda	#mem>>8
+	sta	zp+2
+	lda	#3
+	sta	mem
+	lda	#5
+	ldx	#1
+	sec
+	sbc	(zp,x)
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; sbc zp
+
+	lda	#3
+	sta	zp
+	lda	#5
+	sec
+	sbc	zp
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; sbc #imm
+
+	lda	#5
+	sec
+	sbc	#3
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; sbc abs
+
+	lda	#3
+	sta	mem
+	lda	#5
+	sec
+	sbc	mem
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; sbc (zp),y
+
+	lda	#mem
+	sta	zp
+	lda	#mem>>8
+	sta	zp+1
+	lda	#3
+	sta	mem+1
+	ldy	#1
+	lda	#5
+	sec
+	sbc	(zp),y
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; sbc zp,x
+
+	lda	#3
+	sta	zp+2
+	ldx	#2
+	lda	#5
+	sec
+	sbc	zp,x
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; sbc abs,y
+
+	lda	#3
+	sta	mem+4
+	ldy	#4
+	lda	#5
+	sec
+	sbc	mem,y
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; sbc abs,x
+
+	lda	#3
+	sta	mem+5
+	ldx	#5
+	lda	#5
+	sec
+	sbc	mem,x
+	cmp	#2
+	beq	$+5
+	jmp	fail
+

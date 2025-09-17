@@ -1,0 +1,9 @@
+; cli
+
+	cli
+	php
+	pla
+	and	#4
+	beq	$+5
+	jmp	fail
+

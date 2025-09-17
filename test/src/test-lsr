@@ -1,0 +1,50 @@
+; lsr zp
+
+	lda	#4
+	sta	zp
+	lsr	zp
+	lda	zp
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; lsr a
+
+	lda	#4
+	lsr	a
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; lsr abs
+
+	lda	#4
+	sta	mem
+	lsr	mem
+	lda	mem
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; lsr zp,x
+
+	lda	#4
+	sta	zp+1
+	ldx	#1
+	lsr	zp,x
+	lda	zp+1
+	cmp	#2
+	beq	$+5
+	jmp	fail
+
+; lsr abs,x
+
+	lda	#4
+	sta	mem+3
+	ldx	#3
+	lsr	mem,x
+	lda	mem+3
+	cmp	#2
+	beq	$+5
+	jmp	fail
+

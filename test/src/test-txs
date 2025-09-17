@@ -1,0 +1,13 @@
+; txs
+
+	ldx	#$80
+	txs
+	lda	#57
+	pha
+	lda	$17f
+	cmp	#57
+	beq	$+5
+	jmp	fail
+	ldx	#0
+	txs
+

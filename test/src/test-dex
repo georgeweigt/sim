@@ -1,0 +1,10 @@
+; dex
+
+	lda	#0
+	ldx	#2
+	dex
+	txa
+	cmp	#1
+	beq	$+5
+	jmp	fail
+

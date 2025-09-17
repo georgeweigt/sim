@@ -1,0 +1,8 @@
+; bcs
+
+	lda	#1
+	sec
+	adc	#$fe
+	bcs	$+5
+	jmp	fail
+

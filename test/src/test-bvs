@@ -1,0 +1,8 @@
+; bvs
+
+	lda	#$7e
+	sec
+	adc	#1
+	bvs	$+5
+	jmp	fail
+

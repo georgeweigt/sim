@@ -1,0 +1,98 @@
+; adc (zp,x)
+
+	lda	#mem
+	sta	zp+1
+	lda	#mem>>8
+	sta	zp+2
+	lda	#3
+	sta	mem
+	lda	#5
+	ldx	#1
+	clc
+	adc	(zp,x)
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; adc zp
+
+	lda	#3
+	sta	zp
+	lda	#5
+	sec
+	adc	zp
+	cmp	#9
+	beq	$+5
+	jmp	fail
+
+; adc #imm
+
+	lda	#3
+	clc
+	adc	#5
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; adc abs
+
+	lda	#3
+	sta	mem
+	lda	#5
+	sec
+	adc	mem
+	cmp	#9
+	beq	$+5
+	jmp	fail
+
+; adc (zp),y
+
+	lda	#mem
+	sta	zp
+	lda	#mem>>8
+	sta	zp+1
+	lda	#3
+	sta	mem+1
+	ldy	#1
+	lda	#5
+	clc
+	adc	(zp),y
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; adc zp,x
+
+	lda	#3
+	sta	zp+2
+	ldx	#2
+	lda	#5
+	sec
+	adc	zp,x
+	cmp	#9
+	beq	$+5
+	jmp	fail
+
+; adc abs,y
+
+	lda	#3
+	sta	mem+4
+	ldy	#4
+	lda	#5
+	clc
+	adc	mem,y
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; adc abs,x
+
+	lda	#3
+	sta	mem+5
+	ldx	#5
+	lda	#5
+	sec
+	adc	mem,x
+	cmp	#9
+	beq	$+5
+	jmp	fail

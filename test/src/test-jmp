@@ -1,0 +1,8 @@
+; jmp (addr)
+
+	lda	#jmp1
+	sta	mem
+	lda	#jmp1>>8
+	sta	mem+1
+	jmp	(mem)
+jmp1:

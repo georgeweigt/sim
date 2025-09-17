@@ -1,0 +1,28 @@
+; sty zp
+
+	ldy	#9
+	sty	zp
+	lda	zp
+	cmp	#9
+	beq	$+5
+	jmp	fail
+
+; sty abs
+
+	ldy	#11
+	sty	mem
+	lda	mem
+	cmp	#11
+	beq	$+5
+	jmp	fail
+
+; sty zp,x
+
+	ldx	#1
+	ldy	#9
+	sty	zp,x
+	lda	zp+1
+	cmp	#9
+	beq	$+5
+	jmp	fail
+

@@ -1,0 +1,12 @@
+; clv
+
+	lda	#$7f
+	clc
+	adc	#1
+	clv
+	php
+	pla
+	and	#$40
+	beq	$+5
+	jmp	fail
+

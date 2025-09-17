@@ -1,0 +1,8 @@
+; txa
+
+	ldx	#13
+	txa
+	cmp	#13
+	beq	$+5
+	jmp	fail
+

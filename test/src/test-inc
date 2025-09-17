@@ -1,0 +1,42 @@
+; inc zp
+
+	lda	#10
+	sta	zp
+	inc	zp
+	lda	zp
+	cmp	#11
+	beq	$+5
+	jmp	fail
+
+; inc abs
+
+	lda	#10
+	sta	mem
+	inc	mem
+	lda	mem
+	cmp	#11
+	beq	$+5
+	jmp	fail
+
+; inc zp,x
+
+	lda	#10
+	sta	zp+1
+	ldx	#1
+	inc	zp,x
+	lda	zp+1
+	cmp	#11
+	beq	$+5
+	jmp	fail
+
+; inc abs,x
+
+	lda	#10
+	sta	mem+1
+	ldx	#1
+	inc	mem,x
+	lda	mem+1
+	cmp	#11
+	beq	$+5
+	jmp	fail
+

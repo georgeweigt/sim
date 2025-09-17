@@ -1,0 +1,12 @@
+; brk FIXME brk caused memory corruption, now seems fixed
+
+;	lda	#y3
+;	sta	$fffe
+;	lda	#y3>>8
+;	sta	$ffff
+;	brk
+;	jmp	y4
+;y3	nop
+;	rti
+;y4
+

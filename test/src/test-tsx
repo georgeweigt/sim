@@ -1,0 +1,9 @@
+; tsx
+
+	pha
+	tsx
+	pla
+	cpx	#$ff
+	beq	$+5
+	jmp	fail
+

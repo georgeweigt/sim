@@ -1,0 +1,6 @@
+; bmi
+
+	lda	#-1
+	bmi	$+5
+	jmp	fail
+

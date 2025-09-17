@@ -1,0 +1,11 @@
+; sed
+
+	sed
+	lda	#7
+	clc
+	adc	#8
+	cld
+	cmp	#$15
+	beq	$+5
+	jmp	fail
+

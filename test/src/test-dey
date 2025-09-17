@@ -1,0 +1,10 @@
+; dey
+
+	lda	#0
+	ldy	#2
+	dey
+	tya
+	cmp	#1
+	beq	$+5
+	jmp	fail
+

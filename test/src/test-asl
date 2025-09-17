@@ -1,0 +1,50 @@
+; asl zp
+
+	lda	#4
+	sta	zp
+	asl	zp
+	lda	zp
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; asl a
+
+	lda	#4
+	asl	a
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; asl abs
+
+	lda	#4
+	sta	mem
+	asl	mem
+	lda	mem
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; asl zp,x
+
+	lda	#4
+	sta	zp+1
+	ldx	#1
+	asl	zp,x
+	lda	zp+1
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; asl abs,x
+
+	lda	#4
+	sta	mem+3
+	ldx	#3
+	asl	mem,x
+	lda	mem+3
+	cmp	#8
+	beq	$+5
+	jmp	fail
+

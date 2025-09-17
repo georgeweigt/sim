@@ -1,0 +1,25 @@
+; cpx #imm
+
+	ldx	#5
+	cpx	#5
+	beq	$+5
+	jmp	fail
+
+; cpx zp
+
+	ldx	#4
+	lda	#4
+	sta	zp
+	cpx	zp
+	beq	$+5
+	jmp	fail
+
+; cpx abs
+
+	ldx	#9
+	lda	#9
+	sta	mem
+	cpx	mem
+	beq	$+5
+	jmp	fail
+

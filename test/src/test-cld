@@ -1,0 +1,17 @@
+; cld
+
+	sed
+	php
+	lda	$1ff
+	and	#8
+	bne	$+5
+	jmp	fail
+	pla
+	cld
+	php
+	lda	$1ff
+	and	#8
+	beq	$+5
+	jmp	fail
+	pla
+

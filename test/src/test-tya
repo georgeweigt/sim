@@ -1,0 +1,8 @@
+; tya
+
+	ldy	#13
+	tya
+	cmp	#13
+	beq	$+5
+	jmp	fail
+

@@ -1,0 +1,12 @@
+pass	jsr	puts
+	word	str1
+	jsr	halt
+
+fail	jsr	puts
+	word	str2
+	jsr	halt
+
+str1	byte	"pass",10,0
+str2	byte	"fail",10,0
+
+mem	equ	$

@@ -1,0 +1,5 @@
+; bpl
+
+	lda	#1
+	bpl	$+5
+	jmp	fail

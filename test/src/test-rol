@@ -1,0 +1,55 @@
+; rol zp
+
+	lda	#4
+	sta	zp
+	clc
+	rol	zp
+	lda	zp
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; rol a
+
+	lda	#4
+	clc
+	rol	a
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; rol abs
+
+	lda	#4
+	sta	mem
+	clc
+	rol	mem
+	lda	mem
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; rol zp,x
+
+	lda	#4
+	sta	zp+1
+	ldx	#1
+	clc
+	rol	zp,x
+	lda	zp+1
+	cmp	#8
+	beq	$+5
+	jmp	fail
+
+; rol abs,x
+
+	lda	#4
+	sta	mem+3
+	ldx	#3
+	clc
+	rol	mem,x
+	lda	mem+3
+	cmp	#8
+	beq	$+5
+	jmp	fail
+

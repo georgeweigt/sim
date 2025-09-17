@@ -1,0 +1,25 @@
+; cpy #imm
+
+	ldy	#5
+	cpy	#5
+	beq	$+5
+	jmp	fail
+
+; cpy zp
+
+	ldy	#4
+	lda	#4
+	sta	zp
+	cpy	zp
+	beq	$+5
+	jmp	fail
+
+; cpy abs
+
+	ldy	#9
+	lda	#9
+	sta	mem
+	cpy	mem
+	beq	$+5
+	jmp	fail
+

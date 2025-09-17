@@ -1,0 +1,26 @@
+; bit zp
+
+	lda	#$c0
+	sta	zp
+	lda	#0
+	bit	zp
+	bmi	$+5
+	jmp	fail
+	bvs	$+5
+	jmp	fail
+	beq	$+5
+	jmp	fail
+
+; bit abs
+
+	lda	#$c0
+	sta	mem
+	lda	#0
+	bit	mem
+	bmi	$+5
+	jmp	fail
+	bvs	$+5
+	jmp	fail
+	beq	$+5
+	jmp	fail
+

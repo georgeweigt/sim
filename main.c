@@ -26,6 +26,7 @@ main(int argc, char *argv[])
 	for (;;) {
 		func = ftab[mem[pc++]];
 		func();
+//		trace();
 	}
 }
 

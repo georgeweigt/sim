@@ -1,0 +1,54 @@
+; ldx #imm
+
+	lda	#0
+	ldx	#57
+	stx	zp
+	lda	zp
+	cmp	#57
+	beq	$+5
+	jmp	fail
+
+; ldx zp
+
+	lda	#11
+	sta	zp
+	ldx	zp
+	txa
+	cmp	#11
+	beq	$+5
+	jmp	fail
+
+; ldx abs
+
+	lda	#21
+	sta	mem
+	lda	#0
+	ldx	mem
+	txa
+	cmp	#21
+	beq	$+5
+	jmp	fail
+
+; ldx zp,x (register y)
+
+	lda	#22
+	sta	zp+1
+	ldy	#1
+	ldx	zp,x
+	lda	#0	
+	txa
+	cmp	#22
+	beq	$+5
+	jmp	fail
+
+; ldx abs,x (register y)
+
+	lda	#23
+	sta	mem+3
+	ldy	#3
+	ldx	mem,x
+	txa
+	cmp	#23
+	beq	$+5
+	jmp	fail
+

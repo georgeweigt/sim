@@ -1,0 +1,11 @@
+; tay
+
+	lda	#3
+	tay
+	lda	#19
+	sta	mem,y
+	lda	mem+3
+	cmp	#19
+	beq	$+5
+	jmp	fail
+

@@ -1,0 +1,6 @@
+; jsr
+	jsr	jsr1
+	jmp	jsr2
+jsr1	nop
+	rts
+jsr2
