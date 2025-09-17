@@ -10,11 +10,14 @@ scan_file(int k)
 	scanptr = buf;
 
 	while (*scanptr) {
+		lstloc = -1;
 		lineptr = scanptr;
 		scan_line();
 		if (token != T_LF)
 			scan_error("Unexpected text at end of line");
 		curlin++;
+		if (pass == 2 && lopt)
+			list();
 	}
 }
 
@@ -1816,13 +1819,8 @@ scan_tya(void)
 void
 scan_emit(int opcode, int count)
 {
-	int i, k = curloc, n;
-	char *s;
-
-	if (pass == 1) {
-		curloc += count;
-		return;
-	}
+	if (lstloc < 0)
+		lstloc = curloc;
 
 	if (start < 0)
 		start = curloc;
@@ -1834,37 +1832,21 @@ scan_emit(int opcode, int count)
 
 	if (count > 2)
 		mem[curloc++] = value >> 8;
-
-	// print
-
-	printf("%04x", k);
-	n = 4;
-	for (i = 0; i < count; i++) {
-		printf(" %02x", mem[k + i]);
-		n += 3;
-	}
-	for (i = n; i < 16; i++)
-		putchar(' ');
-	s = lineptr;
-	while (*s && *s != '\n')
-		putchar(*s++);
-	putchar('\n');
 }
 
 void
 scan_emit_byte(int byte)
 {
-	if (pass == 2)
-		mem[curloc] = byte;
-	curloc++;
+	if (lstloc < 0)
+		lstloc = curloc;
+	mem[curloc++] = byte;
 }
 
 void
 scan_emit_word(int word)
 {
-	if (pass == 2) {
-		mem[curloc] = word;
-		mem[curloc + 1] = word >> 8;
-	}
-	curloc += 2;
+	if (lstloc < 0)
+		lstloc = curloc;
+	mem[curloc++] = word;
+	mem[curloc++] = word >> 8;
 }
