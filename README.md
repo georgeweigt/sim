@@ -49,6 +49,4 @@ Built-in functions:
 
         jsr     $fff2   ; write string to console
         word    str
-
-str     byte    "hello",10,0
 ```
