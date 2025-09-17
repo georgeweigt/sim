@@ -1043,7 +1043,7 @@ func_jsr(void)
 {
 	uint16_t t;
 
-	t = pc; // t is addr of first byte following jsr opcode
+	t = pc; // t is address of jsr plus 1
 
 	pc = mem[pc] | mem[(pc + 1) & 0xffff] << 8;
 

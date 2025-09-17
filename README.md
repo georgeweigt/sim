@@ -44,7 +44,7 @@ Built-in functions:
 ```
         jsr     $fff0   ; exit sim
 
-        lda     #"Y"
+        lda     #"y"
         jsr     $fff1   ; write to console
 
         jsr     $fff2   ; write string to console
