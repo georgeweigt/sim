@@ -38,5 +38,5 @@ Dollar sign provides the current location:
 ```
 Hex constants start with dollar sign:
 ```
-     lda  #$ffa
+     lda  #$ff
 ```
