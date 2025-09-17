@@ -1,5 +1,4 @@
 ; tay
-
 	lda	#3
 	tay
 	lda	#19
@@ -8,4 +7,12 @@
 	cmp	#19
 	beq	$+5
 	jmp	fail
-
+; flags
+	lda	#0
+	sta	zp
+	dec	zp ; set N, clear Z
+	tay
+	beq	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail

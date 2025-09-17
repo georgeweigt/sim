@@ -1,5 +1,4 @@
 ; txs
-
 	ldx	#$80
 	txs
 	lda	#57
@@ -10,4 +9,11 @@
 	jmp	fail
 	ldx	#0
 	txs
-
+; flags
+	ldx	#0
+	lda	#$ff ; set N, clear Z
+	txs
+	bne	$+5 ; flags not affected
+	jmp	fail
+	bmi	$+5
+	jmp	fail

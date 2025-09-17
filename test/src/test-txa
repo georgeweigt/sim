@@ -5,4 +5,12 @@
 	cmp	#13
 	beq	$+5
 	jmp	fail
-
+; flags
+	ldx	#0
+	stx	zp
+	dec	zp ; set N, clear Z
+	txa
+	beq	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail

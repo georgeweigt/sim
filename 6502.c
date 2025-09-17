@@ -1211,7 +1211,7 @@ func_tsx(void)
 {
 	x = sp;
 	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 0 : 1;
+	nf = (x & 0x80) ? 1 : 0;
 }
 
 // no flags affected

@@ -1522,7 +1522,6 @@ rts1:
 	jmp	fail
 
 ; tax
-
 	lda	#3
 	tax
 	lda	#19
@@ -1531,9 +1530,16 @@ rts1:
 	cmp	#19
 	beq	$+5
 	jmp	fail
-
+; flags
+	lda	#0
+	sta	zp
+	dec	zp ; set N, clear Z
+	tax
+	beq	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
 ; tay
-
 	lda	#3
 	tay
 	lda	#19
@@ -1542,16 +1548,29 @@ rts1:
 	cmp	#19
 	beq	$+5
 	jmp	fail
-
+; flags
+	lda	#0
+	sta	zp
+	dec	zp ; set N, clear Z
+	tay
+	beq	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
 ; tsx
-
 	pha
 	tsx
 	pla
 	cpx	#$ff
 	beq	$+5
 	jmp	fail
-
+; flags
+	lda	#$ff ; set N, clear Z
+	tsx
+	beq	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
 ; txa
 
 	ldx	#13
@@ -1559,9 +1578,16 @@ rts1:
 	cmp	#13
 	beq	$+5
 	jmp	fail
-
+; flags
+	ldx	#0
+	stx	zp
+	dec	zp ; set N, clear Z
+	txa
+	beq	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
 ; txs
-
 	ldx	#$80
 	txs
 	lda	#57
@@ -1572,15 +1598,29 @@ rts1:
 	jmp	fail
 	ldx	#0
 	txs
-
+; flags
+	ldx	#0
+	lda	#$ff ; set N, clear Z
+	txs
+	bne	$+5 ; flags not affected
+	jmp	fail
+	bmi	$+5
+	jmp	fail
 ; tya
-
 	ldy	#13
 	tya
 	cmp	#13
 	beq	$+5
 	jmp	fail
-
+; flags
+	ldy	#0
+	sty	zp
+	dec	zp ; set N, clear Z
+	tya
+	beq	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
 pass	jsr	puts
 	word	str1
 	jsr	halt

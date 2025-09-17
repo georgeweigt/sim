@@ -1,9 +1,14 @@
 ; tsx
-
 	pha
 	tsx
 	pla
 	cpx	#$ff
 	beq	$+5
 	jmp	fail
-
+; flags
+	lda	#$ff ; set N, clear Z
+	tsx
+	beq	$+5
+	jmp	fail
+	bpl	$+5
+	jmp	fail
