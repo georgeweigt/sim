@@ -1047,35 +1047,31 @@ func_jsr(void)
 
 	pc = mem[pc] | mem[(pc + 1) & 0xffff] << 8;
 
-	// halt
-
-	if (pc == 0xfff0)
-		exit(1);
-
-	// putc
-
-	if (pc == 0xfff1) {
-		pc = t + 2;
-		putchar(acc);
+	if (pc < 0xfff0) {
+		sp -= 2;
+		mem[0x100 + sp] = t + 1;
+		mem[0x100 + ((sp + 1) & 0xff)] = (t + 1) >> 8;
 		return;
 	}
 
-	// puts
+	switch (pc) {
 
-	if (pc == 0xfff2) {
+	case 0xfff0:
+		exit(1);
+		break;
+
+	case 0xfff1:
+		pc = t + 2;
+		putchar(acc);
+		break;
+
+	case 0xfff2:
 		pc = t + 4;
 		t = mem[(pc - 2) & 0xffff] | mem[(pc - 1) & 0xffff] << 8;
 		while (mem[t])
 			putchar(mem[t++]);
-		return;
+		break;
 	}
-
-	// return address
-
-	sp -= 2;
-
-	mem[0x100 + sp] = t + 1;
-	mem[0x100 + ((sp + 1) & 0xff)] = (t + 1) >> 8;
 }
 
 void

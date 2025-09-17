@@ -403,7 +403,11 @@ scan_addr(void)
 
 	if (token == '#') {
 		scan_token();
-		scan_value();
+		if (token == T_QUOSTR) {
+			value = *tokenbuf;
+			scan_token();
+		} else
+			scan_value();
 		addrmode = AM_IMM;
 		return;
 	}

@@ -40,3 +40,15 @@ Hex constants start with dollar sign:
 ```
      lda  #$ff
 ```
+Built-in functions:
+```
+	jsr	$fff0	; halt
+
+	lda	#"Y"
+	jsr	$fff1	; putc
+
+	jsr	$fff2	; puts
+	word	str
+
+str	byte	"hello",10,0
+```
