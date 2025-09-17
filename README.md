@@ -11,7 +11,7 @@ To run a self test:
 ```
 Command line options:
 ```
--l      Print a listing and exit
+-l      Print a listing to stdout and exit
 -b nnnn Set a breakpoint at hex address nnnn
 -t nnnn Set a tracepoint at hex address nnnn
 ```
@@ -25,7 +25,7 @@ Assembler pseudo-ops:
 ```
 Assembler arithmetic operators:
 ```
-        + - * / ~ & | ^ >> <<
++ - * / ~ & | ^ >> <<
 ```
 Right shift is used to get the high byte of something:
 ```
