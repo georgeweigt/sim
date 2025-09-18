@@ -1041,7 +1041,7 @@ func_jmpi(void)
 void
 func_jsr(void)
 {
-	uint16_t t;
+	uint16_t t; // uint16_t so t++ increments modulo 65536
 
 	t = pc; // t is address of jsr plus 1
 
