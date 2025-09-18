@@ -110,7 +110,7 @@ cmp(uint32_t reg, uint32_t addr)
 	if (t & 0x100)
 		flags &= ~C;
 	else
-		flags |= C; // the carry flag is set when A >= M
+		flags |= C; // the carry flag is set when reg >= mem[addr]
 	update_nz(t);
 }
 
