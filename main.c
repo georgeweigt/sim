@@ -68,6 +68,11 @@ opt(int argc, char *argv[])
 
 		s = argv[k++];
 
+		if (*s != '-') {
+			filename = s;
+			continue;
+		}
+
 		if (strcmp(s, "-a") == 0) {
 			aopt = 1;
 			continue;
@@ -95,7 +100,5 @@ opt(int argc, char *argv[])
 			topt = 1;
 			continue;
 		}
-
-		filename = s;
 	}
 }
