@@ -608,6 +608,9 @@ scan_error(char *errmsg)
 	char *s;
 	printf("Line %d:\n", curlin);
 	s = lineptr;
+	while (*s && *s != '\n' && s != scanptr)
+		putchar(*s++);
+	putchar('?');
 	while (*s && *s != '\n')
 		putchar(*s++);
 	putchar('\n');
