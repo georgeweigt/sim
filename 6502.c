@@ -1316,7 +1316,7 @@ void
 func_php(void)
 {
 	sp--;
-	mem[0x100 + sp] = flags | 0x30;
+	mem[0x100 + sp] = flags | E | B;
 }
 
 void
@@ -1349,9 +1349,9 @@ func_brk(void)
 	pc -= 1;
 	sp -= 3;
 
+	mem[0x100 + sp] = flags | E | B;
 	mem[0x100 + ((sp + 1) & 0xff)] = pc;
 	mem[0x100 + ((sp + 2) & 0xff)] = pc >> 8;
-	mem[0x100 + sp] = flags | 0x30;
 
 	pc = mem[0xfffe] | mem[0xffff] << 8;
 

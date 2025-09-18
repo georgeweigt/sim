@@ -259,6 +259,8 @@ extern uint16_t pc;
 
 #define N 0x80
 #define V 0x40
+#define E 0x20
+#define B 0x10
 #define D 0x08
 #define I 0x04
 #define Z 0x02
