@@ -1259,7 +1259,7 @@ func_tsx(void)
 void
 func_txs(void)
 {
-	sp = x; // flags not affected
+	sp = x; // no flags are affected
 }
 
 void
