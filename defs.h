@@ -49,12 +49,7 @@ extern uint8_t acc;
 extern uint8_t x;
 extern uint8_t y; 
 extern uint8_t sp;
-extern uint8_t nf;
-extern uint8_t of;
-extern uint8_t df;
-extern uint8_t id; 
-extern uint8_t zf; 
-extern uint8_t cf;
+extern uint8_t flags;
 extern uint16_t pc;
 
 #define T_LABEL  1001
@@ -261,3 +256,10 @@ extern uint16_t pc;
 #define ZPADDR (where <= curlin && value < 256)
 
 #define UNDEF 1000000
+
+#define N 0x80
+#define V 0x40
+#define D 0x08
+#define I 0x04
+#define Z 0x02
+#define C 0x01

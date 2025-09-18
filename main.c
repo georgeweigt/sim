@@ -46,9 +46,16 @@ main(int argc, char *argv[])
 void
 trace(void)
 {
+	int n, v, d, z, c;
+
+	n = (flags & N) ? 1 : 0;
+	v = (flags & V) ? 1 : 0;
+	d = (flags & D) ? 1 : 0;
+	z = (flags & Z) ? 1 : 0;
+	c = (flags & C) ? 1 : 0;
+
 	printf("Trace: PC%04x A%02x X%02x Y%02x SP%02x N%d V%d D%d Z%d C%d\n",
-		(int) pc, (int) acc, (int) x, (int) y, (int) sp,
-		(int) nf, (int) of, (int) df, (int) zf, (int) cf);
+		(int) pc, (int) acc, (int) x, (int) y, (int) sp, n, v, d, z, c);
 }
 
 void

@@ -2,70 +2,98 @@ void
 adc(uint32_t addr)
 {
 	uint32_t t, h;
-	t = (uint32_t) acc + mem[addr] + cf;
-	of = ((t ^ acc) & (t ^ mem[addr]) & 0x80) ? 1 : 0;
-	if (df) {
-		h = (acc & 0xf) + (mem[addr] & 0xf) + cf; // half add
+
+	if (flags & C)
+		t = (uint32_t) acc + mem[addr] + 1;
+	else
+		t = (uint32_t) acc + mem[addr];
+
+	if ((t ^ acc) & (t ^ mem[addr]) & 0x80)
+		flags |= V;
+	else
+		flags &= ~V;
+
+	if (flags & D) {
+		if (flags & C)
+			h = (acc & 0xf) + (mem[addr] & 0xf) + 1;
+		else
+			h = (acc & 0xf) + (mem[addr] & 0xf);
 		if ((t & 0xf) > 9 || (h & 0x10))
 			t += 6;
 		if ((t & 0xf0) > 0x90 || (t & 0x100))
 			t += 0x60;
 	}
+
+	if (t & 0x100)
+		flags |= C;
+	else
+		flags &= ~C;
+
 	acc = t;
-	zf = acc ? 0 : 1;
-	cf = (t & 0x100) ? 1 : 0;
-	nf = (t & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 void
 sbc(uint32_t addr)
 {
 	uint32_t t, h;
-	t = (uint32_t) acc - mem[addr] - (cf ^ 1);
-	of = ((t ^ acc) & (t ^ mem[addr] ^ 0x80) & 0x80) ? 1 : 0;
-	if (df) {
-		h = (acc & 0xf) - (mem[addr] & 0xf) - (cf ^ 1); // half subtract
+
+	if (flags & C)
+		t = (uint32_t) acc - mem[addr];
+	else
+		t = (uint32_t) acc - mem[addr] - 1;
+
+	if ((t ^ acc) & (t ^ mem[addr] ^ 0x80) & 0x80)
+		flags |= V;
+	else
+		flags &= ~V;
+
+	if (flags & D) {
+		if (flags & C)
+			h = (acc & 0xf) - (mem[addr] & 0xf);
+		else
+			h = (acc & 0xf) - (mem[addr] & 0xf) - 1;
 		if ((t & 0xf) > 9 || (h & 0x10))
 			t += 6;
 		if ((t & 0xf0) > 0x90 || (t & 0x100))
 			t += 0x60;
 	}
+
+	if (t & 0x100)
+		flags &= ~C;
+	else
+		flags |= C;
+
 	acc = t;
-	zf = acc ? 0 : 1;
-	cf = (t & 0x100) ? 0 : 1;
-	nf = (t & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 void
 and(uint32_t addr)
 {
 	acc &= mem[addr];
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 void
 ora(uint32_t addr)
 {
 	acc |= mem[addr];
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 void
 eor(uint32_t addr)
 {
 	acc ^= mem[addr];
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 void
 lda(uint32_t addr)
 {
 	acc = mem[addr];
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 void
@@ -79,79 +107,89 @@ cmp(uint32_t reg, uint32_t addr)
 {
 	uint32_t t;
 	t = reg - mem[addr];
-	zf = (t & 0xff) ? 0 : 1;
-	cf = (t & 0x100) ? 0 : 1;
-	nf = (t & 0x80) ? 1 : 0;
+	if (t & 0x100)
+		flags &= ~C;
+	else
+		flags |= C; // the carry flag is set when A >= M
+	update_nz(t);
 }
 
 void
 asl(uint32_t addr)
 {
-	uint8_t t;
+	uint32_t t;
 	t = mem[addr];
-	cf = (t & 0x80) ? 1 : 0;
+	if (t & 0x80)
+		flags |= C;
+	else
+		flags &= ~C;
 	t <<= 1;
-	zf = t ? 0 : 1;
-	nf = (t & 0x80) ? 1 : 0;
 	st(addr, t);
+	update_nz(t);
 }
 
 void
 lsr(uint32_t addr)
 {
-	uint8_t t;
+	uint32_t t;
 	t = mem[addr];
-	cf = t & 1;
+	if (t & 1)
+		flags |= C;
+	else
+		flags &= ~C;
 	t >>= 1;
-	zf = t ? 0 : 1;
-	nf = 0;
 	st(addr, t);
+	update_nz(t);
 }
 
 void
 rol(uint32_t addr)
 {
-	uint8_t t, u;
+	uint32_t t;
 	t = mem[addr];
-	u = t;
-	t = (t << 1) | cf;
-	zf = t ? 0 : 1;
-	nf = (t & 0x80) ? 1 : 0;
-	cf = (u & 0x80) ? 1 : 0;
+	t <<= 1;
+	if (flags & C)
+		t |= 1;
+	if (t & 0x100)
+		flags |= C;
+	else
+		flags &= ~C;
 	st(addr, t);
+	update_nz(t);
 }
 
 void
 ror(uint32_t addr)
 {
-	uint8_t t, u;
+	uint32_t t;
 	t = mem[addr];
-	u = t;
-	t = (t >> 1) | (cf << 7);
-	zf = t ? 0 : 1;
-	nf = (t & 0x80) ? 1 : 0;
-	cf = (u & 0x01) ? 1 : 0;
+	if (flags & C)
+		t |= 0x100;
+	if (t & 1)
+		flags |= C;
+	else
+		flags &= ~C;
+	t >>= 1;
 	st(addr, t);
+	update_nz(t);
 }
 
 void
 inc(uint32_t addr)
 {
-	uint8_t t;
+	uint32_t t;
 	t = mem[addr] + 1;
-	zf = t ? 0 : 1;
-	nf = (t & 0x80) ? 1 : 0;
 	st(addr, t);
+	update_nz(t);
 }
 
 void
 dec(uint32_t addr)
 {
-	uint8_t t;
+	uint32_t t;
 	t = mem[addr] - 1;
-	zf = t ? 0 : 1;
-	nf = (t & 0x80) ? 1 : 0;
 	st(addr, t);
+	update_nz(t);
 }
 
 void
@@ -630,10 +668,12 @@ func_lsr_zp(void)
 void
 func_lsr_acc(void)
 {
-	cf = acc & 1;
+	if (acc & 1)
+		flags |= C;
+	else
+		flags &= ~C;
 	acc >>= 1;
-	zf = acc ? 0 : 1;
-	nf = 0;
+	update_nz(acc);
 }
 
 void
@@ -667,10 +707,12 @@ func_asl_zp(void)
 void
 func_asl_acc(void)
 {
-	cf = (acc & 0x80) ? 1 : 0;
+	if (acc & 0x80)
+		flags |= C;
+	else
+		flags &= ~C;
 	acc <<= 1;
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 void
@@ -704,12 +746,16 @@ func_rol_zp(void)
 void
 func_rol_acc(void)
 {
-	uint8_t t;
-	t = acc;
-	acc = acc << 1 | cf;
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
-	cf = (t & 0x80) ? 1 : 0;
+	uint32_t t;
+	t = (uint32_t) acc << 1;
+	if (flags & C)
+		t |= 1;
+	if (t & 0x100)
+		flags |= C;
+	else
+		flags &= ~C;
+	acc = t;
+	update_nz(acc);
 }
 
 void
@@ -743,12 +789,16 @@ func_ror_zp(void)
 void
 func_ror_acc(void)
 {
-	uint8_t t;
+	uint32_t t;
 	t = acc;
-	acc = (acc >> 1) | (cf << 7);
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
-	cf = t & 1;
+	if (flags & C)
+		t |= 0x100;
+	if (t & 1)
+		flags |= C;
+	else
+		flags &= ~C;
+	acc = t >> 1;
+	update_nz(acc);
 }
 
 void
@@ -776,8 +826,7 @@ void
 func_ldx_imm(void)
 {
 	x = mem[IMM];
-	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 1 : 0;
+	update_nz(x);
 	pc++;
 }
 
@@ -785,8 +834,7 @@ void
 func_ldx_zp(void)
 {
 	x = mem[ZP];
-	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 1 : 0;
+	update_nz(x);
 	pc++;
 }
 
@@ -794,8 +842,7 @@ void
 func_ldx_abs(void)
 {
 	x = mem[ABS];
-	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 1 : 0;
+	update_nz(x);
 	pc += 2;
 }
 
@@ -803,8 +850,7 @@ void
 func_ldx_zpy(void)
 {
 	x = mem[ZPY];
-	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 1 : 0;
+	update_nz(x);
 	pc++;
 }
 
@@ -812,8 +858,7 @@ void
 func_ldx_absy(void)
 {
 	x = mem[ABSY];
-	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 1 : 0;
+	update_nz(x);
 	pc += 2;
 }
 
@@ -842,8 +887,7 @@ void
 func_ldy_imm(void)
 {
 	y = mem[IMM];
-	zf = y ? 0 : 1;
-	nf = (y & 0x80) ? 1 : 0;
+	update_nz(y);
 	pc++;
 }
 
@@ -851,8 +895,7 @@ void
 func_ldy_zp(void)
 {
 	y = mem[ZP];
-	zf = y ? 0 : 1;
-	nf = (y & 0x80) ? 1 : 0;
+	update_nz(y);
 	pc++;
 }
 
@@ -860,8 +903,7 @@ void
 func_ldy_abs(void)
 {
 	y = mem[ABS];
-	zf = y ? 0 : 1;
-	nf = (y & 0x80) ? 1 : 0;
+	update_nz(y);
 	pc += 2;
 }
 
@@ -869,8 +911,7 @@ void
 func_ldy_zpx(void)
 {
 	y = mem[ZPX];
-	zf = y ? 0 : 1;
-	nf = (y & 0x80) ? 1 : 0;
+	update_nz(y);
 	pc++;
 }
 
@@ -878,8 +919,7 @@ void
 func_ldy_absx(void)
 {
 	y = mem[ABSX];
-	zf = y ? 0 : 1;
-	nf = (y & 0x80) ? 1 : 0;
+	update_nz(y);
 	pc += 2;
 }
 
@@ -1005,22 +1045,40 @@ func_cpy_abs(void)
 void
 func_bit_zp(void)
 {
-	uint8_t t;
+	uint32_t t;
 	t = mem[ZP];
-	nf = (t & 0x80) ? 1 : 0;
-	of = (t & 0x40) ? 1 : 0;
-	zf = (acc & t) ? 0 : 1;
+	if (t & 0x80)
+		flags |= N;
+	else
+		flags &= ~N;
+	if (t & 0x40)
+		flags |= V;
+	else
+		flags &= ~V;
+	if ((acc & t) == 0)
+		flags |= Z;
+	else
+		flags &= ~Z;
 	pc++;
 }
 
 void
 func_bit_abs(void)
 {
-	uint8_t t;
+	uint32_t t;
 	t = mem[ABS];
-	nf = (t & 0x80) ? 1 : 0;
-	of = (t & 0x40) ? 1 : 0;
-	zf = (acc & t) ? 0 : 1;
+	if (t & 0x80)
+		flags |= N;
+	else
+		flags &= ~N;
+	if (t & 0x40)
+		flags |= V;
+	else
+		flags &= ~V;
+	if ((acc & t) == 0)
+		flags |= Z;
+	else
+		flags &= ~Z;
 	pc += 2;
 }
 
@@ -1088,14 +1146,7 @@ func_rts(void)
 void
 func_rti(void)
 {
-	uint8_t t;
-	t = mem[0x100 + sp];
-	nf = (t & 0x80) ? 1 : 0;
-	of = (t & 0x40) ? 1 : 0;
-	df = (t & 0x08) ? 1 : 0;
-	id = (t & 0x04) ? 1 : 0;
-	zf = (t & 0x02) ? 1 : 0;
-	cf = (t & 0x01) ? 1 : 0;
+	flags = mem[0x100 + sp];
 	pc = (mem[0x100 + ((sp + 1) & 0xff)] | mem[0x100 + ((sp + 2) & 0xff)] << 8) + 1;
 	sp += 3;
 }
@@ -1104,170 +1155,159 @@ void
 func_inx(void)
 {
 	x++;
-	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 1 : 0;
+	update_nz(x);
 }
 
 void
 func_dex(void)
 {
 	x--;
-	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 1 : 0;
+	update_nz(x);
 }
 
 void
 func_iny(void)
 {
 	y++;
-	zf = y ? 0 : 1;
-	nf = (y & 0x80) ? 1 : 0;
+	update_nz(y);
 }
 
 void
 func_dey(void)
 {
 	y--;
-	zf = y ? 0 : 1;
-	nf = (y & 0x80) ? 1 : 0;
+	update_nz(y);
 }
 
 void
 func_clc(void)
 {
-	cf = 0;
+	flags &= ~C;
 }
 
 void
 func_sec(void)
 {
-	cf = 1;
+	flags |= C;
 }
 
 void
 func_cli(void)
 {
-	id = 0;
+	flags &= ~I;
 }
 
 void
 func_sti(void)
 {
-	id = 1;
+	flags |= I;
 }
 
 void
 func_cld(void)
 {
-	df = 0;
+	flags &= ~D;
 }
 
 void
 func_std(void)
 {
-	df = 1;
+	flags |= D;
 }
 
 void
 func_clv(void)
 {
-	of = 0;
+	flags &= ~V;
 }
 
 void
 func_tax(void)
 {
 	x = acc;
-	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 1 : 0;
+	update_nz(x);
 }
 
 void
 func_txa(void)
 {
 	acc = x;
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 void
 func_tay(void)
 {
 	y = acc;
-	zf = y ? 0 : 1;
-	nf = (y & 0x80) ? 1 : 0;
+	update_nz(y);
 }
 
 void
 func_tya(void)
 {
 	acc = y;
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 void
 func_tsx(void)
 {
 	x = sp;
-	zf = x ? 0 : 1;
-	nf = (x & 0x80) ? 1 : 0;
+	update_nz(x);
 }
-
-// no flags affected
 
 void
 func_txs(void)
 {
-	sp = x;
+	sp = x; // flags not affected
 }
 
 void
 func_bpl(void)
 {
-	br(nf ^ 1);
+	br((flags & N) ^ N);
 }
 
 void
 func_bmi(void)
 {
-	br(nf);
+	br(flags & N);
 }
 
 void
 func_bvc(void)
 {
-	br(of ^ 1);
+	br((flags & V) ^ V);
 }
 
 void
 func_bvs(void)
 {
-	br(of);
+	br(flags & V);
 }
 
 void
 func_bcc(void)
 {
-	br(cf ^ 1);
+	br((flags & C) ^ C);
 }
 
 void
 func_bcs(void)
 {
-	br(cf);
+	br(flags & C);
 }
 
 void
 func_bne(void)
 {
-	br(zf ^ 1);
+	br((flags & Z) ^ Z);
 }
 
 void
 func_beq(void)
 {
-	br(zf);
+	br(flags & Z);
 }
 
 // BRK and PHP push B=1, IRQ and NMI push B=0
@@ -1276,23 +1316,14 @@ void
 func_php(void)
 {
 	sp--;
-	mem[0x100 + sp] = nf << 7 | of << 6 | 1 << 5 | 1 << 4 | df << 3 | id << 2 | zf << 1 | cf;
+	mem[0x100 + sp] = flags | 0x30;
 }
 
 void
 func_plp(void)
 {
-	uint8_t t;
-
-	t = mem[0x100 + sp];
+	flags = mem[0x100 + sp];
 	sp++;
-
-	nf = (t & 0x80) ? 1 : 0;
-	of = (t & 0x40) ? 1 : 0;
-	df = (t & 0x08) ? 1 : 0;
-	id = (t & 0x04) ? 1 : 0;
-	zf = (t & 0x02) ? 1 : 0;
-	cf = (t & 0x01) ? 1 : 0;
 }
 
 void
@@ -1307,8 +1338,7 @@ func_pla(void)
 {
 	acc = mem[0x100 + sp];
 	sp++;
-	zf = acc ? 0 : 1;
-	nf = (acc & 0x80) ? 1 : 0;
+	update_nz(acc);
 }
 
 // BRK and PHP push B=1, IRQ and NMI push B=0
@@ -1319,18 +1349,13 @@ func_brk(void)
 	pc -= 1;
 	sp -= 3;
 
-	// return address
-
 	mem[0x100 + ((sp + 1) & 0xff)] = pc;
 	mem[0x100 + ((sp + 2) & 0xff)] = pc >> 8;
-
-	// flags
-
-	mem[0x100 + sp] = nf << 7 | of << 6 | 1 << 5 | 1 << 4 | df << 3 | id << 2 | zf << 1 | cf;
+	mem[0x100 + sp] = flags | 0x30;
 
 	pc = mem[0xfffe] | mem[0xffff] << 8;
 
-	id = 1;
+	flags |= I;
 }
 
 void
@@ -1344,4 +1369,17 @@ func_undef(void)
 	pc -= 1;
 	printf("undef %04x:%02x\n", (int) pc, (int) mem[pc]);
 	exit(1);
+}
+
+void
+update_nz(uint32_t t)
+{
+	if (t & 0x80)
+		flags |= N;
+	else
+		flags &= ~N;
+	if ((t & 0xff) == 0)
+		flags |= Z;
+	else
+		flags &= ~Z;
 }

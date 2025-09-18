@@ -165,6 +165,7 @@ void func_pla(void);
 void func_brk(void);
 void func_nop(void);
 void func_undef(void);
+void update_nz(uint32_t t);
 void list(void);
 int main(int argc, char *argv[]);
 void trace(void);
