@@ -64,7 +64,6 @@ extern uint16_t pc;
 #define T_REGA   1010
 #define T_REGX   1011
 #define T_REGY   1012
-#define T_PSEUDO 1013
 
 #define AM_IMM   1
 #define AM_ZP    2
