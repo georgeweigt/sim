@@ -39,10 +39,9 @@ scan_line(void)
 			p->where = curlin;
 		}
 		scan_token();
+		if (token == T_LF)
+			return;
 	}
-
-	if (token == T_LF)
-		return;
 
 	for (i = 0; i < tokenlen; i++)
 		tokenbuf[i] = tolower(tokenbuf[i]);
