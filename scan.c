@@ -402,11 +402,7 @@ scan_addr(void)
 
 	if (token == '#') {
 		scan_token();
-		if (token == T_QUOSTR) {
-			value = *tokenbuf;
-			scan_token();
-		} else
-			scan_value();
+		scan_value();
 		addrmode = AM_IMM;
 		return;
 	}
@@ -591,6 +587,10 @@ scan_factor(void)
 			else
 				value = (value << 4) | (tolower(*s++) - 'a' + 10);
 		stack_push(value);
+		break;
+
+	case T_QUOSTR:
+		stack_push(*tokenbuf);
 		break;
 
 	default:
