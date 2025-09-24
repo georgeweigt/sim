@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#define NSYM 100
+#define NSYM 200
 #define STACKSIZE 100
 #define TOKENBUFLEN 100
 

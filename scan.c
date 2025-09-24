@@ -768,29 +768,33 @@ scan_value(void)
 void
 scan_org(struct sym *p)
 {
+	int t = pass;
+	pass = 2; // no unresolved symbols
+
 	scan_token();
 	scan_value();
-
-	if (where == UNDEF)
-		scan_error("Unresolved symbol in ORG");
 
 	if (p)
 		p->value = value;
 
 	curloc = value;
+
+	pass = t;
 }
 
 void
 scan_equ(struct sym *p)
 {
+	int t = pass;
+	pass = 2; // no unresolved symbols
+
 	scan_token();
 	scan_value();
 
-	if (where == UNDEF)
-		scan_error("Unresolved symbol in EQU");
-
 	if (p)
 		p->value = value;
+
+	pass = t;
 }
 
 void
@@ -811,7 +815,7 @@ scan_byte(void)
 	char *s;
 	do {
 		scan_token();
-		if (token == T_QUOSTR) {
+		if (token == T_QUOSTR && tokenlen > 1) {
 			s = tokenbuf;
 			while (*s)
 				scan_emit_byte(*s++);
