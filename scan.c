@@ -576,7 +576,7 @@ scan_factor(void)
 		if (*s == '0') {
 			while (*s) {
 				if (*s == '8' || *s == '9')
-					scan_error("Octal number error");
+					scan_error("Syntax error in octal string");
 				value = 8 * value + *s++ - '0';
 			}
 		} else {
