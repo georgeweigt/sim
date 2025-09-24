@@ -1099,7 +1099,6 @@ func_jmpi(void)
 void
 func_jsr(void)
 {
-	int i, n;
 	char *s;
 	uint16_t t; // uint16_t so t++ increments modulo 65536
 
@@ -1138,12 +1137,11 @@ func_jsr(void)
 		pc = t + 2;
 		s = (char *) mem + 512;
 		fgets(s, 128, stdin);
-		n = strlen(s);
-		for (i = 0; i < n; i++) {
-			mem[i] = toupper(mem[i]);
-			if (mem[i] == '\n')
-				mem[i] = 0;
+		while (*s && *s != '\n') {
+			*s = toupper(*s);
+			s++;
 		}
+		*s = 0;
 		break;
 
 	default:
