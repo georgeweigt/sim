@@ -41,6 +41,10 @@ Hex constants start with dollar sign:
 ```
         lda     #$ff
 ```
+Octal constants start with zero:
+```
+        lda     #0377
+```
 Built-in functions:
 ```
         jsr     $fff0   ; exit sim
@@ -50,4 +54,6 @@ Built-in functions:
 
         jsr     $fff2   ; write string to console
         word    str
+
+	jsr	$fff3	; read from console, save to memory page 2
 ```

@@ -4,7 +4,7 @@ scan_file(int k)
 	pass = k;
 
 	start = -1;
-	curloc = 0x200;
+	curloc = 0x300; // default origin
 	curlin = 1;
 
 	scanptr = buf;
@@ -573,8 +573,16 @@ scan_factor(void)
 	case T_DECSTR:
 		value = 0;
 		s = tokenbuf;
-		while (*s)
-			value = 10 * value + *s++ - '0';
+		if (*s == '0') {
+			while (*s) {
+				if (*s == '8' || *s == '9')
+					scan_error("Octal number error");
+				value = 8 * value + *s++ - '0';
+			}
+		} else {
+			while (*s)
+				value = 10 * value + *s++ - '0';
+		}
 		stack_push(value);
 		break;
 
