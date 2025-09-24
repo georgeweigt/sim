@@ -32,6 +32,7 @@ main(int argc, char *argv[])
 
 		if (bopt && pc == bp) {
 			trace();
+			print_stack();
 			break;
 		}
 
@@ -101,4 +102,14 @@ opt(int argc, char *argv[])
 			continue;
 		}
 	}
+}
+
+void
+print_stack(void)
+{
+	int i;
+	printf("stack:");
+	for (i = sp; i < 256; i++)
+		printf(" %02x", (unsigned) mem[0x100 + i]);
+	printf("\n");
 }
