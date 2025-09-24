@@ -55,5 +55,5 @@ Built-in functions:
         jsr     $fff2   ; write string to console
         word    str
 
-	jsr	$fff3	; read from console, save to memory page 2
+        jsr     $fff3   ; read from console, save to memory page 2
 ```
