@@ -1,5 +1,5 @@
 Tiny 6502 simulator with built-in assembler
-
+#
 To build and run:
 ```
 make
@@ -57,6 +57,7 @@ Built-in functions:
 
         jsr     $fff3   ; read from console, save to memory page 2
 ```
+#
 basic.s is under development as a port from the original Microsoft source code.
 Press return two times to accept default settings.
 ```
