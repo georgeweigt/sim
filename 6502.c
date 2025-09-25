@@ -1136,7 +1136,7 @@ func_jsr(void)
 	case 0xfff3:
 		pc = t + 2;
 		s = (char *) mem + 512;
-		fgets(s, 128, stdin);
+		fgets(s, 240, stdin);
 		while (*s && *s != '\n') {
 			*s = toupper(*s);
 			s++;
