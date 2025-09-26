@@ -1,22 +1,22 @@
 Tiny 6502 simulator with built-in assembler
 #
-To build and run:
+To build and run
 ```
 make
 ./sim hello.s
 ```
-To run a self test:
+To run a self test
 ```
 ./sim selftest.s
 ```
-Command line options:
+Command line options
 ```
 -l      Send a listing to stdout and exit
 -a      Trace all
 -b nnnn Set a breakpoint at hex address nnnn
 -t nnnn Set a tracepoint at hex address nnnn
 ```
-Assembler pseudo-ops:
+Assembler pseudo-ops
 ```
         org
         equ
@@ -24,28 +24,28 @@ Assembler pseudo-ops:
         byte
         word
 ```
-Assembler arithmetic operators:
+Assembler arithmetic operators
 ```
 + - * / ~ & | ^ >> <<
 ```
-Right shift is used to get the high byte of something:
+Right shift is used to get the high byte of something
 ```
         lda     #foo>>8
 ```
-Dollar sign provides the current location:
+Dollar sign provides the current location
 ```
         beq     $+5
         jmp     foo
 ```
-Hex constants start with dollar sign:
+Hex constants start with dollar sign
 ```
         lda     #$ff
 ```
-Octal constants start with zero:
+Octal constants start with zero
 ```
         lda     #0377
 ```
-Built-in functions:
+Built-in functions
 ```
         jsr     $fff0   ; exit sim
 
