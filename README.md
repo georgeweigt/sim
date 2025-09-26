@@ -1,11 +1,11 @@
 Tiny 6502 simulator with built-in assembler
 #
-To build and run
+Build and run
 ```
 make
 ./sim hello.s
 ```
-To run a self test
+Run a self test
 ```
 ./sim selftest.s
 ```
