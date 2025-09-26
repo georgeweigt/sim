@@ -28,7 +28,7 @@ Assembler arithmetic operators
 ```
 + - * / ~ & | ^ >> <<
 ```
-Right shift is used to get the high byte of something
+Right shift to get the high byte
 ```
         lda     #foo>>8
 ```
