@@ -59,7 +59,7 @@ Built-in functions
         jsr     $fff2   ; write string to console
         word    str
 
-        jsr     $fff3   ; read from console, save to memory page 2
+        jsr     $fff3   ; read input string from console into page 2 buffer
 ```
 
 Program `basic.s` is under development as a port from the original Microsoft source code.
