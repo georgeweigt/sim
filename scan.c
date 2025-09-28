@@ -777,7 +777,7 @@ void
 scan_org(struct sym *p)
 {
 	int t = pass;
-	pass = 2; // no unresolved symbols
+	pass = 2; // no undefined symbols
 
 	scan_token();
 	scan_value();
@@ -794,7 +794,7 @@ void
 scan_equ(struct sym *p)
 {
 	int t = pass;
-	pass = 2; // no unresolved symbols
+	pass = 2; // no undefined symbols
 
 	scan_token();
 	scan_value();
@@ -808,13 +808,15 @@ scan_equ(struct sym *p)
 void
 scan_bss(void)
 {
+	int t = pass;
+	pass = 2; // no undefined symbols
+
 	scan_token();
 	scan_value();
 
-	if (where == UNDEF)
-		scan_error("Unresolved symbol in BSS");
-
 	curloc += value;
+
+	pass = t;
 }
 
 void
