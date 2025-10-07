@@ -32,11 +32,10 @@ FP2	EQU	X2
 
 ; One = 1.0
 
-	lda	#0
-	sta	M1
 	lda	#1
 	sta	M1+1
 	lda	#0
+	sta	M1
 	sta	M1+2
 	jsr	FLOAT
 	lda	FP1
@@ -48,35 +47,20 @@ FP2	EQU	X2
 	lda	FP1+3
 	sta	One+3
 
-; Two = One + One
+; Two = 2.0
 
-	lda	One
-	sta	FP1
-	sta	FP2
-
-	lda	One+1
-	sta	FP1+1
-	sta	FP2+1
-
-	lda	One+2
-	sta	FP1+2
-	sta	FP2+2
-
-	lda	One+3
-	sta	FP1+3
-	sta	FP2+3
-
-	jsr	FADD
-
+	lda	#2
+	sta	M1+1
+	lda	#0
+	sta	M1
+	sta	M1+2
+	jsr	FLOAT
 	lda	FP1
 	sta	Two
-
 	lda	FP1+1
 	sta	Two+1
-
 	lda	FP1+2
 	sta	Two+2
-
 	lda	FP1+3
 	sta	Two+3
 
@@ -157,6 +141,46 @@ FP2	EQU	X2
 
 	lda	FP1+3
 	cmp	Zero+3
+	beq	$+5
+	jsr	err
+
+; One + One = Two ?
+
+	lda	One
+	sta	FP1
+	sta	FP2
+
+	lda	One+1
+	sta	FP1+1
+	sta	FP2+1
+
+	lda	One+2
+	sta	FP1+2
+	sta	FP2+2
+
+	lda	One+3
+	sta	FP1+3
+	sta	FP2+3
+
+	jsr	FADD
+
+	lda	FP1
+	cmp	Two
+	beq	$+5
+	jsr	err
+
+	lda	FP1+1
+	cmp	Two+1
+	beq	$+5
+	jsr	err
+
+	lda	FP1+2
+	cmp	Two+2
+	beq	$+5
+	jsr	err
+
+	lda	FP1+3
+	cmp	Two+3
 	beq	$+5
 	jsr	err
 
