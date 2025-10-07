@@ -1,3 +1,5 @@
+; Kahan's Floating Point Test "Paranoia" (under construction)
+
 exit	equ	$fff0
 putc	equ	$fff1
 puts	equ	$fff2
@@ -9,184 +11,220 @@ X1	EQU	$F8
 M1	EQU	$F9
 E	EQU	$FC
 
-FP1	EQU	X1
-FP2	EQU	X2
+fp1	EQU	X1
+fp2	EQU	X2
 
-	org	$f000
+block	equ	$300
 
-; Zero = 0.0
+minusone equ	0
+zero	equ	4
+one	equ	8
+two	equ	12
+three	equ	16
 
-	lda	#0
-	sta	M1
-	sta	M1+1
-	sta	M1+2
-	jsr	FLOAT
-	lda	FP1
-	sta	Zero
-	lda	FP1+1
-	sta	Zero+1
-	lda	FP1+2
-	sta	Zero+2
-	lda	FP1+3
-	sta	Zero+3
+Radix	equ	124
+W	equ	128
+Y	equ	132
+Z	equ	136
 
-; One = 1.0
+	org	$1000
+
+; minusone = -1.0
 
 	lda	#1
-	sta	M1+1
-	lda	#0
-	sta	M1
-	sta	M1+2
-	jsr	FLOAT
-	lda	FP1
-	sta	One
-	lda	FP1+1
-	sta	One+1
-	lda	FP1+2
-	sta	One+2
-	lda	FP1+3
-	sta	One+3
+	jsr	float
+	jsr	FCOMPL
+	ldx	#minusone
+	jsr	fsave
 
-; Two = 2.0
+; zero = 0.0
+
+	lda	#0
+	jsr	float
+	ldx	#zero
+	jsr	fsave
+
+; one = 1.0
+
+	lda	#1
+	jsr	float
+	ldx	#one
+	jsr	fsave
+
+; two = 2.0
 
 	lda	#2
-	sta	M1+1
-	lda	#0
-	sta	M1
-	sta	M1+2
-	jsr	FLOAT
-	lda	FP1
-	sta	Two
-	lda	FP1+1
-	sta	Two+1
-	lda	FP1+2
-	sta	Two+2
-	lda	FP1+3
-	sta	Two+3
+	jsr	float
+	ldx	#two
+	jsr	fsave
 
-; Zero + Zero = Zero ?
+; three = 3.0
 
-	lda	Zero
-	sta	FP1
-	sta	FP2
+	lda	#3
+	jsr	float
+	ldx	#three
+	jsr	fsave
 
-	lda	Zero+1
-	sta	FP1+1
-	sta	FP2+1
+; zero + zero = zero ?
 
-	lda	Zero+2
-	sta	FP1+2
-	sta	FP2+2
-
-	lda	Zero+3
-	sta	FP1+3
-	sta	FP2+3
-
+	ldx	#zero
+	jsr	fload1
+	ldx	#zero
+	jsr	fload2
 	jsr	FADD
-
-	lda	FP1
-	cmp	Zero
+	ldx	#zero
+	jsr	fload2
+	jsr	feq
 	beq	$+5
 	jsr	err
 
-	lda	FP1+1
-	cmp	Zero+1
-	beq	$+5
-	jsr	err
+; one - one = zero ?
 
-	lda	FP1+2
-	cmp	Zero+2
-	beq	$+5
-	jsr	err
-
-	lda	FP1+3
-	cmp	Zero+3
-	beq	$+5
-	jsr	err
-
-; One - One = Zero ?
-
-	lda	One
-	sta	FP1
-	sta	FP2
-
-	lda	One+1
-	sta	FP1+1
-	sta	FP2+1
-
-	lda	One+2
-	sta	FP1+2
-	sta	FP2+2
-
-	lda	One+3
-	sta	FP1+3
-	sta	FP2+3
-
+	ldx	#one
+	jsr	fload1
+	ldx	#one
+	jsr	fload2
 	jsr	FSUB
-
-	lda	FP1
-	cmp	Zero
+	ldx	#zero
+	jsr	fload2
+	jsr	feq
 	beq	$+5
 	jsr	err
 
-	lda	FP1+1
-	cmp	Zero+1
-	beq	$+5
-	jsr	err
+; one + one = two ?
 
-	lda	FP1+2
-	cmp	Zero+2
-	beq	$+5
-	jsr	err
-
-	lda	FP1+3
-	cmp	Zero+3
-	beq	$+5
-	jsr	err
-
-; One + One = Two ?
-
-	lda	One
-	sta	FP1
-	sta	FP2
-
-	lda	One+1
-	sta	FP1+1
-	sta	FP2+1
-
-	lda	One+2
-	sta	FP1+2
-	sta	FP2+2
-
-	lda	One+3
-	sta	FP1+3
-	sta	FP2+3
-
+	ldx	#one
+	jsr	fload1
+	ldx	#one
+	jsr	fload2
 	jsr	FADD
-
-	lda	FP1
-	cmp	Two
+	ldx	#two
+	jsr	fload2
+	jsr	feq
 	beq	$+5
 	jsr	err
 
-	lda	FP1+1
-	cmp	Two+1
+; -zero = zero ?
+
+	ldx	#zero
+	jsr	fload1
+	jsr	FCOMPL
+	ldx	#zero
+	jsr	fload2
+	jsr	feq	
 	beq	$+5
 	jsr	err
 
-	lda	FP1+2
-	cmp	Two+2
+; two + one = three?
+
+	ldx	#two
+	jsr	fload1
+	ldx	#one
+	jsr	fload2
+	jsr	FADD
+	ldx	#three
+	jsr	fload2
+	jsr	feq
 	beq	$+5
 	jsr	err
 
-	lda	FP1+3
-	cmp	Two+3
-	beq	$+5
-	jsr	err
-
-; ok
+; Searching for Radix and Precision.
 
 	jsr	puts
+	word	str1
+
+	ldx	#one		; W = one
+	jsr	fload1
+	ldx	#W
+	jsr	fsave
+
+loop1	ldx	#W		; W = W + W
+	jsr	fload1
+	ldx	#W
+	jsr	fload2
+	jsr	FADD
+	ldx	#W
+	jsr	fsave
+
+	ldx	#W		; Y = W + one
+	jsr	fload1
+	ldx	#one
+	jsr	fload2
+	jsr	FADD
+	ldx	#Y
+	jsr	fsave
+
+	ldx	#Y		; Z = Y - W
+	jsr	fload1
+	ldx	#W
+	jsr	fload2
+	jsr	FSUB
+	ldx	#Z
+	jsr	fsave
+
+	ldx	#Z		; Y = Z - one
+	jsr	fload1
+	ldx	#one
+	jsr	fload2
+	jsr	FSUB
+	ldx	#Y
+	jsr	fsave
+
+	ldx	#Y		; fabs(Y) + minusone
+	jsr	fload1
+	jsr	fabs
+	ldx	#minusone
+	jsr	fload2
+	jsr	FADD
+
+	lda	M1		; loop if negative
+	bmi	loop1
+
+	ldx	#one		; Y = one
+	jsr	fload1
+	ldx	#Y
+	jsr	fsave
+
+loop2	ldx	#W		; Radix = W + Y
+	jsr	fload1
+	ldx	#Y
+	jsr	fload2
+	jsr	FADD
+	ldx	#Radix
+	jsr	fsave
+
+	ldx	#Y		; Y = Y + Y
+	jsr	fload1
+	ldx	#Y
+	jsr	fload2
+	jsr	FADD
+	ldx	#Y
+	jsr	fsave
+
+	ldx	#Radix		; Radix = Radix - W
+	jsr	fload1
+	ldx	#W
+	jsr	fload2
+	jsr	FSUB
+	ldx	#Radix
+	jsr	fsave
+
+	ldx	#Radix		; loop if Radix = 0
+	jsr	fload1
+	ldx	#zero
+	jsr	fload2
+	jsr	feq
+	beq	loop2
+
+	ldx	#Radix
+	jsr	print4
+
+	ldx	#minusone
+	jsr	print4
+
+;;;;; under construction
+
+ok	jsr	puts
 	word	okstr
 	jsr	exit
 
@@ -197,20 +235,95 @@ err	jsr	puts
 okstr	byte	"ok",10,0
 errstr	byte	"err",10,0
 
-Zero	bss	4
-One	bss	4
-Two	bss	4
-Three	bss	4
-Four	bss	4
-Five	bss	4
-Eight	bss	4
-Nine	bss	4
-TwentySeven bss	4
-ThirtyTwo bss	4
-TwoForty bss	4
-MinusOne bss	4
-Half	bss	4
-OneAndHalf bss	4
+str1	byte	"Searching for Radix and Precision.",10,0
+
+print4	lda	block,x
+	jsr	print41
+	lda	block+1,x
+	jsr	print41
+	lda	block+2,x
+	jsr	print41
+	lda	block+3,x
+	jsr	print41
+	lda	#10
+	jsr	putc
+	rts
+
+print41	pha
+	lsr	a
+	lsr	a
+	lsr	a
+	lsr	a
+	cmp	#10
+	bcc	$+4
+	adc	#6
+	clc
+	adc	#"0"
+	jsr	putc
+	pla
+	and	#$f
+	cmp	#10
+	bcc	$+4
+	adc	#6
+	clc
+	adc	#"0"
+	jsr	putc
+	rts
+
+feq	lda	fp1
+	cmp	fp2
+	bne	feq1
+	lda	fp1+1
+	cmp	fp2+1
+	bne	feq1
+	lda	fp1+2
+	cmp	fp2+2
+	bne	feq1
+	lda	fp1+3
+	cmp	fp2+3
+feq1	rts
+
+float	sta	M1+1
+	lda	#0
+	sta	M1
+	sta	M1+2
+	jsr	FLOAT
+	rts
+
+fload1	lda	block,x
+	sta	fp1
+	lda	block+1,x
+	sta	fp1+1
+	lda	block+2,x
+	sta	fp1+2
+	lda	block+3,x
+	sta	fp1+3
+	rts
+
+fload2	lda	block,x
+	sta	fp2
+	lda	block+1,x
+	sta	fp2+1
+	lda	block+2,x
+	sta	fp2+2
+	lda	block+3,x
+	sta	fp2+3
+	rts
+
+fsave	lda	fp1
+	sta	block,x
+	lda	fp1+1
+	sta	block+1,x
+	lda	fp1+2
+	sta	block+2,x
+	lda	fp1+3
+	sta	block+3,x
+	rts
+
+fabs	lda	M1
+	bpl	$+5
+	jsr	FCOMPL
+	rts
 
 OVLOC	jsr	puts
 	word	OVLOCS

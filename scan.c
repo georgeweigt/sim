@@ -394,12 +394,6 @@ scan_add_symbol(void)
 void
 scan_addr(void)
 {
-	if (token == T_REGA) {
-		scan_token();
-		addrmode = AM_REGA;
-		return;
-	}
-
 	if (token == '#') {
 		scan_token();
 		scan_value();
@@ -417,7 +411,9 @@ scan_addr(void)
 		switch (token) {
 		case ',':
 			scan_token();
-			if (token != T_REGX)
+			if (token != T_NAME)
+				break;
+			if (strcmp(tokenbuf, "x") != 0 && strcmp(tokenbuf, "X") != 0)
 				break;
 			scan_token();
 			if (token != ')')
@@ -430,7 +426,9 @@ scan_addr(void)
 			if (token != ',')
 				break;
 			scan_token();
-			if (token != T_REGY)
+			if (token != T_NAME)
+				break;
+			if (strcmp(tokenbuf, "y") != 0 && strcmp(tokenbuf, "Y") != 0)
 				break;
 			scan_token();
 			addrmode = AM_ZPIY;
@@ -443,23 +441,25 @@ scan_addr(void)
 	// absolute modes
 
 	scan_value();
+
 	if (token == ',') {
 		scan_token();
-		switch (token) {
-		case T_REGX:
-			scan_token();
-			addrmode = AM_ABSX;
-			break;
-		case T_REGY:
-			scan_token();
-			addrmode = AM_ABSY;
-			break;
-		default:
-			scan_error("Expected index X or Y after comma");
-			break;
+		if (token == T_NAME) {
+			if (strcmp(tokenbuf, "x") == 0 || strcmp(tokenbuf, "X") == 0) {
+				scan_token();
+				addrmode = AM_ABSX;
+				return;
+			}
+			if (strcmp(tokenbuf, "y") == 0 || strcmp(tokenbuf, "Y") == 0) {
+				scan_token();
+				addrmode = AM_ABSY;
+				return;
+			}
 		}
-	} else
-		addrmode = AM_ABS;
+		scan_error("Expected index X or Y after comma");
+	}
+
+	addrmode = AM_ABS;
 }
 
 void
@@ -669,19 +669,6 @@ scan_token(void)
 			scanptr++;
 		while (isalnum(*scanptr));
 		tokenlen = scanptr - tokenptr;
-		if (tokenlen == 1) {
-			switch (tolower(*tokenptr)) {
-			case 'a':
-				token = T_REGA;
-				return;
-			case 'x':
-				token = T_REGX;
-				return;
-			case 'y':
-				token = T_REGY;
-				return;
-			}
-		}
 		if (tokenlen > TOKENBUFLEN)
 			scan_error("Too long");
 		memcpy(tokenbuf, tokenptr, tokenlen);
@@ -939,13 +926,16 @@ void
 scan_asl(void)
 {
 	scan_token();
+
+	if (token == T_NAME && (strcmp(tokenbuf, "a") == 0 || strcmp(tokenbuf, "A") == 0)) {
+		scan_token();
+		scan_emit(ASL_REGA, 1);
+		return;
+	}
+
 	scan_addr();
 
 	switch (addrmode) {
-
-	case AM_REGA:
-		scan_emit(ASL_REGA, 1);
-		break;
 
 	case AM_ABS:
 		if (ZPADDR)
@@ -1447,13 +1437,16 @@ void
 scan_lsr(void)
 {
 	scan_token();
+
+	if (token == T_NAME && (strcmp(tokenbuf, "a") == 0 || strcmp(tokenbuf, "A") == 0)) {
+		scan_token();
+		scan_emit(LSR_REGA, 1);
+		return;
+	}
+
 	scan_addr();
 
 	switch (addrmode) {
-
-	case AM_REGA:
-		scan_emit(LSR_REGA, 1);
-		break;
 
 	case AM_ABS:
 		if (ZPADDR)
@@ -1558,13 +1551,16 @@ void
 scan_rol(void)
 {
 	scan_token();
+
+	if (token == T_NAME && (strcmp(tokenbuf, "a") == 0 || strcmp(tokenbuf, "A") == 0)) {
+		scan_token();
+		scan_emit(ROL_REGA, 1);
+		return;
+	}
+
 	scan_addr();
 
 	switch (addrmode) {
-
-	case AM_REGA:
-		scan_emit(ROL_REGA, 1);
-		break;
 
 	case AM_ABS:
 		if (ZPADDR)
@@ -1590,13 +1586,16 @@ void
 scan_ror(void)
 {
 	scan_token();
+
+	if (token == T_NAME && (strcmp(tokenbuf, "a") == 0 || strcmp(tokenbuf, "A") == 0)) {
+		scan_token();
+		scan_emit(ROR_REGA, 1);
+		return;
+	}
+
 	scan_addr();
 
 	switch (addrmode) {
-
-	case AM_REGA:
-		scan_emit(ROR_REGA, 1);
-		break;
 
 	case AM_ABS:
 		if (ZPADDR)

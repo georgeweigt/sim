@@ -61,9 +61,6 @@ extern uint16_t pc;
 #define T_SHR    1007
 #define T_SHL    1008
 #define T_LF     1009
-#define T_REGA   1010
-#define T_REGX   1011
-#define T_REGY   1012
 
 #define AM_IMM   1
 #define AM_ZP    2
