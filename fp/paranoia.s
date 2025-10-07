@@ -15,21 +15,32 @@ X1	EQU	$F8
 M1	EQU	$F9
 E	EQU	$FC
 
-block	equ	$0f00
+block	equ	$400
 
 	org	0		; trick to get page offsets
 
 B	bss	4
+E0	bss	4
+E1	bss	4
+E3	bss	4
+E9	bss	4
 F1	bss	4
+F2	bss	4
+F3	bss	4
+F6	bss	4
 O	bss	4
 O1	bss	4
 O2	bss	4
 O3	bss	4
+O4	bss	4
+O8	bss	4
+O9	bss	4
 P	bss	4
 T	bss	4
 U1	bss	4
 U2	bss	4
 W	bss	4
+X	bss	4
 Y	bss	4
 Z	bss	4
 
@@ -53,6 +64,21 @@ Z	bss	4
 	lda	#3		; O3=3
 	jsr	FLOATA
 	ldx	#O3
+	jsr	FSAVE
+
+	lda	#4		; O4=4
+	jsr	FLOATA
+	ldx	#O4
+	jsr	FSAVE
+
+	lda	#8		; O8=8
+	jsr	FLOATA
+	ldx	#O8
+	jsr	FSAVE
+
+	lda	#9		; O9=9
+	jsr	FLOATA
+	ldx	#O9
 	jsr	FSAVE
 
 	ldx	#O1		; F1=-O1
@@ -121,12 +147,13 @@ Z	bss	4
 	jsr	err
 
 ;1170 W=O1
-;1180 W=W+W : Y=W+O1 : Z=Y-W : Y=Z-O1 : IF (F1+ABS(Y)<O) THEN 1180
 
-	ldx	#O1		; W=O1
+L1170	ldx	#O1
 	jsr	FLOAD1
 	ldx	#W
 	jsr	FSAVE
+
+;1180 W=W+W : Y=W+O1 : Z=Y-W : Y=Z-O1 : IF (F1+ABS(Y)<O) THEN 1180
 
 L1180	ldx	#W		; W=W+W
 	jsr	FLOAD1
@@ -174,7 +201,9 @@ L1180	ldx	#W		; W=W+W
 ;1220 IF (B<O2) THEN B=O1
 ;1230 PRINT " Radix  B = "; B : IF (B=O1) THEN 1270
 
-	ldx	#O		; P=O
+;1200 P=O : Y=O1
+
+L1200	ldx	#O		; P=O
 	jsr	FLOAD1
 	ldx	#P
 	jsr	FSAVE
@@ -183,6 +212,8 @@ L1180	ldx	#W		; W=W+W
 	jsr	FLOAD1
 	ldx	#Y
 	jsr	FSAVE
+
+;1210 B=W+Y : Y=Y+Y : B=B-W : IF (B=O) THEN 1210
 
 L1210	ldx	#W		; B=W+Y
 	jsr	FLOAD1
@@ -210,19 +241,23 @@ L1210	ldx	#W		; B=W+Y
 	jsr	FTEST		; IF (B=O) THEN 1210
 	beq	L1210
 
-	ldx	#B		; IF (B<O2) THEN B=O1
+;1220 IF (B<O2) THEN B=O1
+
+L1220	ldx	#B		; IF (B<O2) THEN B=O1
 	jsr	FLOAD2
 	ldx	#O2
 	jsr	FLOAD1
 	jsr	FSUB
 	jsr	FTEST
-	bpl	Y1
+	bpl	L1230
 	ldx	#O1
 	jsr	FLOAD1
 	ldx	#B
 	jsr	FSAVE
-Y1
-	jsr	puts		; PRINT " Radix  B = "; B
+
+;1230 PRINT " Radix  B = "; B : IF (B=O1) THEN 1270
+
+L1230	jsr	puts		; PRINT " Radix  B = "; B
 	word	str1230
 	ldx	#B
 	jsr	print4
@@ -236,12 +271,13 @@ Y1
 	beq	L1270
 
 ;1240 W=O1
-;1250 P=P+O1 : W=W*B : Y=W+O1 : Z=Y-W : IF (Z=O1) THEN 1250
 
-	ldx	#O1		; W=O1
+L1240	ldx	#O1
 	jsr	FLOAD1
 	ldx	#W
 	jsr	FSAVE
+
+;1250 P=P+O1 : W=W*B : Y=W+O1 : Z=Y-W : IF (Z=O1) THEN 1250
 
 L1250	ldx	#P		; P=P+O1
 	jsr	FLOAD1
@@ -306,6 +342,92 @@ L1270	ldx	#O1		; U1=O1/W
 	ldx	#U1
 	jsr	print4
 
+;1280 PRINT : PRINT "Recalculating radix and precision ";
+
+L1280	jsr	puts
+	word	str1280
+
+;1290 E0=B : E1=U1 : E9=U2 : E3=P
+
+L1290	ldx	#B		; E0=B
+	jsr	FLOAD1
+	ldx	#E0
+	jsr	FSAVE
+
+	ldx	#U1		; E1=U1
+	jsr	FLOAD1
+	ldx	#E1
+	jsr	FSAVE
+
+	ldx	#U2		; E9=U2
+	jsr	FLOAD1
+	ldx	#E9
+	jsr	FSAVE
+
+	ldx	#P		; E3=P
+	jsr	FLOAD1
+	ldx	#E3
+	jsr	FSAVE
+
+;1300 X=O4/O3 : F3=X-O1 : F6=F2-F3 : X=F6+F6 : X=ABS(X-F3) : IF (X<U2) THEN X=U2
+
+L1300	ldx	#O4		; X=O4/O3
+	jsr	FLOAD2
+	ldx	#O3
+	jsr	FLOAD1
+	jsr	FDIV
+	ldx	#X
+	jsr	FSAVE
+
+	ldx	#X		; F3=X-O1
+	jsr	FLOAD2
+	ldx	#O1
+	jsr	FLOAD1
+	jsr	FSUB
+	ldx	#F3
+	jsr	FSAVE
+
+	ldx	#F2		; F6=F2-F3
+	jsr	FLOAD2
+	ldx	#F3
+	jsr	FLOAD1
+	jsr	FSUB
+	ldx	#F6
+	jsr	FSAVE
+
+	ldx	#F6		; X=F6+F6
+	jsr	FLOAD1
+	ldx	#F6
+	jsr	FLOAD2
+	jsr	FADD
+	ldx	#X
+	jsr	FSAVE
+
+	ldx	#X		; X=ABS(X-F3)
+	jsr	FLOAD2
+	ldx	#F3
+	jsr	FLOAD1
+	jsr	FSUB
+	jsr	FABS
+	ldx	#X
+	jsr	FSAVE
+
+	ldx	#X		; IF (X<U2) THEN X=U2
+	jsr	FLOAD2
+	ldx	#U2
+	jsr	FLOAD1
+	jsr	FSUB
+	jsr	FTEST
+	bpl	L1320
+	ldx	#U2
+	jsr	FLOAD1
+	ldx	#X
+	jsr	FSAVE
+
+;1320 U2=X : Y=F2*U2+T2*U2*U2 : Y=O1+Y : X=Y-O1 : IF (U2>X AND X>O) THEN 1320
+
+L1320
+
 ;;;;; under construction
 
 ok	jsr	puts
@@ -336,6 +458,7 @@ errstr	byte	"err $",0
 
 str1230	byte	" Radix  B = ",0
 str1270	byte	"Closest relative separation found is  U1 =",0
+str1280	byte	"Recalculating radix and precision ",0
 
 print4	lda	block,x
 	jsr	print1
