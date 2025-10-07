@@ -15,56 +15,47 @@ X1	EQU	$F8
 M1	EQU	$F9
 E	EQU	$FC
 
-block	equ	$300
+block	equ	$0f00
 
-F1	equ	0
-O	equ	4
-O1	equ	8
-O2	equ	12
-O3	equ	16
-P	equ	20
-
-B	equ	124
-W	equ	128
-Y	equ	132
-Z	equ	136
+	org	0		; trick to get page offsets
+B	bss	4
+F1	bss	4
+O	bss	4
+O1	bss	4
+O2	bss	4
+O3	bss	4
+P	bss	4
+T	bss	4
+W	bss	4
+Y	bss	4
+Z	bss	4
 
 	org	$1000
 
-; F1 = -1.0
-
-	lda	#1
-	jsr	FLOATA
-	jsr	FCOMPL
-	ldx	#F1
-	jsr	FSAVE
-
-; O = 0.0
-
-	lda	#0
+	lda	#0		; O=0
 	jsr	FLOATA
 	ldx	#O
 	jsr	FSAVE
 
-; O1 = 1.0
-
-	lda	#1
+	lda	#1		; O1=1
 	jsr	FLOATA
 	ldx	#O1
 	jsr	FSAVE
 
-; O2 = 2.0
-
-	lda	#2
+	lda	#2		; O2=2
 	jsr	FLOATA
 	ldx	#O2
 	jsr	FSAVE
 
-; O3 = 3.0
-
-	lda	#3
+	lda	#3		; O3=3
 	jsr	FLOATA
 	ldx	#O3
+	jsr	FSAVE
+
+	ldx	#O1		; F1=-O1
+	jsr	FLOAD1
+	jsr	FCOMPL
+	ldx	#F1
 	jsr	FSAVE
 
 ; O + O = O ?
@@ -74,9 +65,6 @@ Z	equ	136
 	ldx	#O
 	jsr	FLOAD2
 	jsr	FADD
-	ldx	#O
-	jsr	FLOAD2
-	jsr	FSUB
 	jsr	FTEST
 	beq	$+5
 	jsr	err
@@ -86,9 +74,6 @@ Z	equ	136
 	ldx	#O1
 	jsr	FLOAD1
 	ldx	#O1
-	jsr	FLOAD2
-	jsr	FSUB
-	ldx	#O
 	jsr	FLOAD2
 	jsr	FSUB
 	jsr	FTEST
@@ -118,7 +103,7 @@ Z	equ	136
 	beq	$+5
 	jsr	err
 
-; O2 + O1 = O3?
+; O2 + O1 = O3 ?
 
 	ldx	#O2
 	jsr	FLOAD1
@@ -127,15 +112,13 @@ Z	equ	136
 	jsr	FADD
 	ldx	#O3
 	jsr	FLOAD2
+	jsr	FSUB
+	jsr	FTEST
 	beq	$+5
 	jsr	err
 
-;1160 PRINT "Searching for radix  B  and precision  P ; ";
 ;1170 W=O1
 ;1180 W=W+W : Y=W+O1 : Z=Y-W : Y=Z-O1 : IF (F1+ABS(Y)<O) THEN 1180
-;1190 '... now  W  is just big enough that  |((W+1)-W)-1| >= 1 ...
-;1200 P=O :  Y=O1
-;1210 B=W+Y : Y=Y+Y : B=B-W : IF (B=O) THEN 1210
 
 	ldx	#O1		; W=O1
 	jsr	FLOAD1
@@ -180,8 +163,12 @@ L1180	ldx	#W		; W=W+W
 	ldx	#F1
 	jsr	FLOAD2
 	jsr	FADD
-	lda	M1
+	jsr	FTEST
 	bmi	L1180
+
+;1200 P=O : Y=O1
+;1210 B=W+Y : Y=Y+Y : B=B-W : IF (B=O) THEN 1210
+;1220 IF (B<O2) THEN B=O1
 
 	ldx	#O		; P=O
 	jsr	FLOAD1
@@ -216,16 +203,23 @@ L1210	ldx	#W		; B=W+Y
 	jsr	FSUB
 	ldx	#B
 	jsr	FSAVE
-
-	ldx	#B		; IF (B=O) THEN 1210
-	jsr	FLOAD1
-	jsr	FTEST
+	jsr	FTEST		; IF (B=O) THEN 1210
 	beq	L1210
 
+	ldx	#B		; IF (B<O2) THEN B=O1
+	jsr	FLOAD2
+	ldx	#O2
+	jsr	FLOAD1
+	jsr	FSUB
+	jsr	FTEST
+	bpl	Y1
+	ldx	#O1
+	jsr	FLOAD1
 	ldx	#B
-	jsr	print4
+	jsr	FSAVE
+Y1
 
-	ldx	#F1
+	ldx	#B
 	jsr	print4
 
 ;;;;; under construction
@@ -254,7 +248,7 @@ err	jsr	puts
 	jsr	exit
 
 okstr	byte	"ok",10,0
-errstr	byte	"err from $",0
+errstr	byte	"err $",0
 
 print4	lda	block,x
 	jsr	print1
@@ -276,7 +270,6 @@ print1	pha
 	cmp	#10
 	bcc	$+4
 	adc	#6
-	clc
 	adc	#"0"
 	jsr	putc
 	pla
@@ -284,16 +277,20 @@ print1	pha
 	cmp	#10
 	bcc	$+4
 	adc	#6
-	clc
 	adc	#"0"
 	jsr	putc
 	rts
 
-FTEST	lda	X1
-	ora	M1
+FTEST	lda	M1
+	bpl	FTEST1
+	lda	#-1
+	rts
+FTEST1	ora	X1
 	ora	M1+1
 	ora	M1+2
-	rts
+	beq	FTEST2
+	lda	#1
+FTEST2	rts
 
 FLOATA	sta	M1+1
 	lda	#0
