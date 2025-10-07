@@ -1,11 +1,12 @@
 ; Kahan's Floating Point Test "Paranoia" (under construction)
 
-start	equ	$1000
+vars	equ	$400
+start	equ	$500
 
 	org	start
 	jmp	main
 
-	org	0		; page offsets, not zero page
+	org	0		; page offsets for "vars", not zero page
 
 B	bss	4
 E0	bss	4
@@ -189,15 +190,21 @@ UNDFL     LDA  #$0
           RTS
 ;;;;;
 
+fadd	equ	FADD
+fsub	equ	FSUB
+fmul	equ	FMUL
+fdiv	equ	FDIV
+fcompl	equ	FCOMPL
+
+;;;;;
+
 	org	0
 
 t	bss	2
 
-block	equ	$400
-
 	org	OVLOC
 
-	jmp	FERR
+	jmp	ferr
 
 	org	start+3
 
@@ -235,13 +242,13 @@ str1230	byte	" Radix  B = ",0
 str1270	byte	"Closest relative separation found is  U1 =",0
 str1280	byte	"Recalculating radix and precision ",0
 
-print4	lda	block,x
+print4	lda	vars,x
 	jsr	print1
-	lda	block+1,x
+	lda	vars+1,x
 	jsr	print1
-	lda	block+2,x
+	lda	vars+2,x
 	jsr	print1
-	lda	block+3,x
+	lda	vars+3,x
 	jsr	print1
 	lda	#10
 	jsr	putc
@@ -266,283 +273,283 @@ print1	pha
 	jsr	putc
 	rts
 
-FTEST	lda	M1
-	bpl	FTEST1
+ftest	lda	M1
+	bpl	ftest1
 	lda	#-1
 	rts
-FTEST1	ora	X1
+ftest1	ora	X1
 	ora	M1+1
 	ora	M1+2
-	beq	FTEST2
+	beq	ftest2
 	lda	#1
-FTEST2	rts
+ftest2	rts
 
-FLOATA	sta	M1+1
+floata	sta	M1+1
 	lda	#0
 	sta	M1
 	sta	M1+2
 	jsr	FLOAT
 	rts
 
-FLOAD1	lda	block,x
+fload1	lda	vars,x
 	sta	X1
-	lda	block+1,x
+	lda	vars+1,x
 	sta	M1
-	lda	block+2,x
+	lda	vars+2,x
 	sta	M1+1
-	lda	block+3,x
+	lda	vars+3,x
 	sta	M1+2
 	rts
 
-FLOAD2	lda	block,x
+fload2	lda	vars,x
 	sta	X2
-	lda	block+1,x
+	lda	vars+1,x
 	sta	M2
-	lda	block+2,x
+	lda	vars+2,x
 	sta	M2+1
-	lda	block+3,x
+	lda	vars+3,x
 	sta	M2+2
 	rts
 
-FSAVE	lda	X1
-	sta	block,x
+fsave	lda	X1
+	sta	vars,x
 	lda	M1
-	sta	block+1,x
+	sta	vars+1,x
 	lda	M1+1
-	sta	block+2,x
+	sta	vars+2,x
 	lda	M1+2
-	sta	block+3,x
+	sta	vars+3,x
 	rts
 
-FABS	lda	M1
+fabs	lda	M1
 	bpl	$+5
 	jsr	FCOMPL
 	rts
 
-FERR	jsr	puts
-	word	FERR1
+ferr	jsr	puts
+	word	ferr1
 	jsr	exit
 
-FERR1	byte	"OVLOC",10,0
+ferr1	byte	"OVLOC",10,0
 
 ;;;;;
 
 main	lda	#0		; O=0
-	jsr	FLOATA
+	jsr	floata
 	ldx	#O
-	jsr	FSAVE
+	jsr	fsave
 
 	lda	#1		; O1=1
-	jsr	FLOATA
+	jsr	floata
 	ldx	#O1
-	jsr	FSAVE
+	jsr	fsave
 
 	lda	#2		; O2=2
-	jsr	FLOATA
+	jsr	floata
 	ldx	#O2
-	jsr	FSAVE
+	jsr	fsave
 
 	lda	#3		; O3=3
-	jsr	FLOATA
+	jsr	floata
 	ldx	#O3
-	jsr	FSAVE
+	jsr	fsave
 
 	lda	#4		; O4=4
-	jsr	FLOATA
+	jsr	floata
 	ldx	#O4
-	jsr	FSAVE
+	jsr	fsave
 
 	lda	#8		; O8=8
-	jsr	FLOATA
+	jsr	floata
 	ldx	#O8
-	jsr	FSAVE
+	jsr	fsave
 
 	lda	#9		; O9=9
-	jsr	FLOATA
+	jsr	floata
 	ldx	#O9
-	jsr	FSAVE
+	jsr	fsave
 
 	lda	#32		; T2=32
-	jsr	FLOATA
+	jsr	floata
 	ldx	#T2
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#O1		; F1=-O1
-	jsr	FLOAD1
+	jsr	fload1
 	jsr	FCOMPL
 	ldx	#F1
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#O1		; F2=1/2
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#O2
-	jsr	FLOAD1
-	jsr	FDIV
+	jsr	fload1
+	jsr	fdiv
 	ldx	#F2
-	jsr	FSAVE
+	jsr	fsave
 
 ; O + O = O ?
 
 	ldx	#O
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#O
-	jsr	FLOAD2
-	jsr	FADD
-	jsr	FTEST
+	jsr	fload2
+	jsr	fadd
+	jsr	ftest
 	beq	$+5
 	jsr	err
 
 ; O1 - O1 = O ?
 
 	ldx	#O1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#O1
-	jsr	FLOAD2
-	jsr	FSUB
-	jsr	FTEST
+	jsr	fload2
+	jsr	fsub
+	jsr	ftest
 	beq	$+5
 	jsr	err
 
 ; O1 + O1 = O2 ?
 
 	ldx	#O1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#O1
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#O2
-	jsr	FLOAD2
-	jsr	FSUB
-	jsr	FTEST
+	jsr	fload2
+	jsr	fsub
+	jsr	ftest
 	beq	$+5
 	jsr	err
 
 ; -O = O ?
 
 	ldx	#O
-	jsr	FLOAD1
+	jsr	fload1
 	jsr	FCOMPL
-	jsr	FTEST
+	jsr	ftest
 	beq	$+5
 	jsr	err
 
 ; O2 + O1 = O3 ?
 
 	ldx	#O2
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#O1
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#O3
-	jsr	FLOAD2
-	jsr	FSUB
-	jsr	FTEST
+	jsr	fload2
+	jsr	fsub
+	jsr	ftest
 	beq	$+5
 	jsr	err
 
 ;1170 W=O1
 
 L1170	ldx	#O1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#W
-	jsr	FSAVE
+	jsr	fsave
 
 ;1180 W=W+W : Y=W+O1 : Z=Y-W : Y=Z-O1 : IF (F1+ABS(Y)<O) THEN 1180
 
 L1180	ldx	#W		; W=W+W
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#W
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#W
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#W		; Y=W+O1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#O1
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#Y
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#Y		; Z=Y-W
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#W
-	jsr	FLOAD1
-	jsr	FSUB
+	jsr	fload1
+	jsr	fsub
 	ldx	#Z
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#Z		; Y=Z-O1
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#O1
-	jsr	FLOAD1
-	jsr	FSUB
+	jsr	fload1
+	jsr	fsub
 	ldx	#Y
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#Y		; IF (F1+ABS(Y)<O) THEN 1180
-	jsr	FLOAD1
-	jsr	FABS
+	jsr	fload1
+	jsr	fabs
 	ldx	#F1
-	jsr	FLOAD2
-	jsr	FADD
-	jsr	FTEST
+	jsr	fload2
+	jsr	fadd
+	jsr	ftest
 	bmi	L1180
 
 ;1200 P=O : Y=O1
 
 L1200	ldx	#O		; P=O
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#P
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#O1		; Y=O1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#Y
-	jsr	FSAVE
+	jsr	fsave
 
 ;1210 B=W+Y : Y=Y+Y : B=B-W : IF (B=O) THEN 1210
 
 L1210	ldx	#W		; B=W+Y
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#Y
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#B
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#Y		; Y=Y+Y
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#Y
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#Y
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#B		; B=B-W
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#W
-	jsr	FLOAD1
-	jsr	FSUB
+	jsr	fload1
+	jsr	fsub
 	ldx	#B
-	jsr	FSAVE
-	jsr	FTEST		; IF (B=O) THEN 1210
+	jsr	fsave
+	jsr	ftest		; IF (B=O) THEN 1210
 	beq	L1210
 
 ;1220 IF (B<O2) THEN B=O1
 
 L1220	ldx	#B		; IF (B<O2) THEN B=O1
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#O2
-	jsr	FLOAD1
-	jsr	FSUB
-	jsr	FTEST
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
 	bpl	L1230
 	ldx	#O1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#B
-	jsr	FSAVE
+	jsr	fsave
 
 ;1230 PRINT " Radix  B = "; B : IF (B=O1) THEN 1270
 
@@ -552,79 +559,79 @@ L1230	jsr	puts		; PRINT " Radix  B = "; B
 	jsr	print4
 
 	ldx	#B		; IF (B=O1) THEN 1270
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#O1
-	jsr	FLOAD1
-	jsr	FSUB
-	jsr	FTEST
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
 	beq	L1270
 
 ;1240 W=O1
 
 L1240	ldx	#O1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#W
-	jsr	FSAVE
+	jsr	fsave
 
 ;1250 P=P+O1 : W=W*B : Y=W+O1 : Z=Y-W : IF (Z=O1) THEN 1250
 
 L1250	ldx	#P		; P=P+O1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#O1
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#P
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#W		; W=W*B
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#B
-	jsr	FLOAD2
-	jsr	FMUL
+	jsr	fload2
+	jsr	fmul
 	ldx	#W
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#W		; Y=W+O1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#O1
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#Y
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#Y		; Z=Y-W
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#W
-	jsr	FLOAD1
-	jsr	FSUB
+	jsr	fload1
+	jsr	fsub
 	ldx	#Z
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#Z		; IF (Z=O1) THEN 1250
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#O1
-	jsr	FLOAD1
-	jsr	FSUB
-	jsr	FTEST
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
 	beq	L1250
 
 ;1270 U1=O1/W : U2=B*U1 : PRINT "Closest relative separation found is  U1 ="; U1
 
 L1270	ldx	#O1		; U1=O1/W
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#W
-	jsr	FLOAD1
-	jsr	FDIV
+	jsr	fload1
+	jsr	fdiv
 	ldx	#U1
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#B		; U2=B*U1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#U1
-	jsr	FLOAD2
-	jsr	FMUL
+	jsr	fload2
+	jsr	fmul
 	ldx	#U2
-	jsr	FSAVE
+	jsr	fsave
 
 	jsr	puts		; PRINT "Closest relative separation found is  U1 ="; U1
 	word	str1270
@@ -639,127 +646,127 @@ L1280	jsr	puts
 ;1290 E0=B : E1=U1 : E9=U2 : E3=P
 
 L1290	ldx	#B		; E0=B
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#E0
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#U1		; E1=U1
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#E1
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#U2		; E9=U2
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#E9
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#P		; E3=P
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#E3
-	jsr	FSAVE
+	jsr	fsave
 
 ;1300 X=O4/O3 : F3=X-O1 : F6=F2-F3 : X=F6+F6 : X=ABS(X-F3) : IF (X<U2) THEN X=U2
 
 L1300	ldx	#O4		; X=O4/O3
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#O3
-	jsr	FLOAD1
-	jsr	FDIV
+	jsr	fload1
+	jsr	fdiv
 	ldx	#X
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#X		; F3=X-O1
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#O1
-	jsr	FLOAD1
-	jsr	FSUB
+	jsr	fload1
+	jsr	fsub
 	ldx	#F3
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#F2		; F6=F2-F3
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#F3
-	jsr	FLOAD1
-	jsr	FSUB
+	jsr	fload1
+	jsr	fsub
 	ldx	#F6
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#F6		; X=F6+F6
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#F6
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#X
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#X		; X=ABS(X-F3)
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#F3
-	jsr	FLOAD1
-	jsr	FSUB
-	jsr	FABS
+	jsr	fload1
+	jsr	fsub
+	jsr	fabs
 	ldx	#X
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#X		; IF (X<U2) THEN X=U2
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#U2
-	jsr	FLOAD1
-	jsr	FSUB
-	jsr	FTEST
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
 	bpl	L1320
 	ldx	#U2
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#X
-	jsr	FSAVE
+	jsr	fsave
 
 ;1320 U2=X : Y=F2*U2+T2*U2*U2 : Y=O1+Y : X=Y-O1 : IF (U2>X AND X>O) THEN 1320
 
 L1320	ldx	#X		; U2=X
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#U2
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#F2		; Y=F2*U2+T2*U2*U2
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#U2
-	jsr	FLOAD2
-	jsr	FMUL
+	jsr	fload2
+	jsr	fmul
 	ldx	#T
-	jsr	FSAVE
+	jsr	fsave
 	ldx	#T2
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#U2
-	jsr	FLOAD2
-	jsr	FMUL
+	jsr	fload2
+	jsr	fmul
 	ldx	#U2
-	jsr	FLOAD2
-	jsr	FMUL
+	jsr	fload2
+	jsr	fmul
 	ldx	#T
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#Y
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#O1		; Y=O1+Y
-	jsr	FLOAD1
+	jsr	fload1
 	ldx	#Y
-	jsr	FLOAD2
-	jsr	FADD
+	jsr	fload2
+	jsr	fadd
 	ldx	#Y
-	jsr	FSAVE
+	jsr	fsave
 
 	ldx	#U2		; IF (U2>X AND X>O) THEN 1320
-	jsr	FLOAD2
+	jsr	fload2
 	ldx	#X
-	jsr	FLOAD1
-	jsr	FSUB
-	jsr	FTEST
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
 	beq	L1340
 	bmi	L1340
 	ldx	#X
-	jsr	FLOAD1
-	jsr	FTEST
+	jsr	fload1
+	jsr	ftest
 	beq	L1340
 	bpl	L1320
 
