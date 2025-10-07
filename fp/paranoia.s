@@ -1,8 +1,37 @@
 ; Kahan's Floating Point Test "Paranoia" (under construction)
 
-	org	$1000
+start	equ	$1000
+
+	org	start
 	jmp	main
-start	equ	$
+
+	org	0		; page offsets, not zero page
+
+B	bss	4
+E0	bss	4
+E1	bss	4
+E3	bss	4
+E9	bss	4
+F1	bss	4
+F2	bss	4
+F3	bss	4
+F6	bss	4
+O	bss	4
+O1	bss	4
+O2	bss	4
+O3	bss	4
+O4	bss	4
+O8	bss	4
+O9	bss	4
+P	bss	4
+T	bss	4
+T2	bss	4
+U1	bss	4
+U2	bss	4
+W	bss	4
+X	bss	4
+Y	bss	4
+Z	bss	4
 
 ;***********************
 ;*                     *
@@ -166,38 +195,11 @@ t	bss	2
 
 block	equ	$400
 
-	org	0		; trick to get page offsets
-
-B	bss	4
-E0	bss	4
-E1	bss	4
-E3	bss	4
-E9	bss	4
-F1	bss	4
-F2	bss	4
-F3	bss	4
-F6	bss	4
-O	bss	4
-O1	bss	4
-O2	bss	4
-O3	bss	4
-O4	bss	4
-O8	bss	4
-O9	bss	4
-P	bss	4
-T	bss	4
-U1	bss	4
-U2	bss	4
-W	bss	4
-X	bss	4
-Y	bss	4
-Z	bss	4
-
 	org	OVLOC
 
 	jmp	FERR
 
-	org	start
+	org	start+3
 
 exit	equ	$fff0
 putc	equ	$fff1
@@ -360,10 +362,23 @@ main	lda	#0		; O=0
 	ldx	#O9
 	jsr	FSAVE
 
+	lda	#32		; T2=32
+	jsr	FLOATA
+	ldx	#T2
+	jsr	FSAVE
+
 	ldx	#O1		; F1=-O1
 	jsr	FLOAD1
 	jsr	FCOMPL
 	ldx	#F1
+	jsr	FSAVE
+
+	ldx	#O1		; F2=1/2
+	jsr	FLOAD2
+	ldx	#O2
+	jsr	FLOAD1
+	jsr	FDIV
+	ldx	#F2
 	jsr	FSAVE
 
 ; O + O = O ?
@@ -700,6 +715,53 @@ L1300	ldx	#O4		; X=O4/O3
 
 ;1320 U2=X : Y=F2*U2+T2*U2*U2 : Y=O1+Y : X=Y-O1 : IF (U2>X AND X>O) THEN 1320
 
-L1320
+L1320	ldx	#X		; U2=X
+	jsr	FLOAD1
+	ldx	#U2
+	jsr	FSAVE
 
+	ldx	#F2		; Y=F2*U2+T2*U2*U2
+	jsr	FLOAD1
+	ldx	#U2
+	jsr	FLOAD2
+	jsr	FMUL
+	ldx	#T
+	jsr	FSAVE
+	ldx	#T2
+	jsr	FLOAD1
+	ldx	#U2
+	jsr	FLOAD2
+	jsr	FMUL
+	ldx	#U2
+	jsr	FLOAD2
+	jsr	FMUL
+	ldx	#T
+	jsr	FLOAD2
+	jsr	FADD
+	ldx	#Y
+	jsr	FSAVE
+
+	ldx	#O1		; Y=O1+Y
+	jsr	FLOAD1
+	ldx	#Y
+	jsr	FLOAD2
+	jsr	FADD
+	ldx	#Y
+	jsr	FSAVE
+
+	ldx	#U2		; IF (U2>X AND X>O) THEN 1320
+	jsr	FLOAD2
+	ldx	#X
+	jsr	FLOAD1
+	jsr	FSUB
+	jsr	FTEST
+	beq	L1340
+	bmi	L1340
+	ldx	#X
+	jsr	FLOAD1
+	jsr	FTEST
+	beq	L1340
+	bpl	L1320
+
+L1340
 	jmp	ok
