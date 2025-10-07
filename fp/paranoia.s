@@ -18,6 +18,7 @@ E	EQU	$FC
 block	equ	$0f00
 
 	org	0		; trick to get page offsets
+
 B	bss	4
 F1	bss	4
 O	bss	4
@@ -26,6 +27,8 @@ O2	bss	4
 O3	bss	4
 P	bss	4
 T	bss	4
+U1	bss	4
+U2	bss	4
 W	bss	4
 Y	bss	4
 Z	bss	4
@@ -142,17 +145,17 @@ L1180	ldx	#W		; W=W+W
 	jsr	FSAVE
 
 	ldx	#Y		; Z=Y-W
-	jsr	FLOAD1
-	ldx	#W
 	jsr	FLOAD2
+	ldx	#W
+	jsr	FLOAD1
 	jsr	FSUB
 	ldx	#Z
 	jsr	FSAVE
 
 	ldx	#Z		; Y=Z-O1
-	jsr	FLOAD1
-	ldx	#O1
 	jsr	FLOAD2
+	ldx	#O1
+	jsr	FLOAD1
 	jsr	FSUB
 	ldx	#Y
 	jsr	FSAVE
@@ -169,6 +172,7 @@ L1180	ldx	#W		; W=W+W
 ;1200 P=O : Y=O1
 ;1210 B=W+Y : Y=Y+Y : B=B-W : IF (B=O) THEN 1210
 ;1220 IF (B<O2) THEN B=O1
+;1230 PRINT " Radix  B = "; B : IF (B=O1) THEN 1270
 
 	ldx	#O		; P=O
 	jsr	FLOAD1
@@ -197,9 +201,9 @@ L1210	ldx	#W		; B=W+Y
 	jsr	FSAVE
 
 	ldx	#B		; B=B-W
-	jsr	FLOAD1
-	ldx	#W
 	jsr	FLOAD2
+	ldx	#W
+	jsr	FLOAD1
 	jsr	FSUB
 	ldx	#B
 	jsr	FSAVE
@@ -218,8 +222,88 @@ L1210	ldx	#W		; B=W+Y
 	ldx	#B
 	jsr	FSAVE
 Y1
-
+	jsr	puts		; PRINT " Radix  B = "; B
+	word	str1230
 	ldx	#B
+	jsr	print4
+
+	ldx	#B		; IF (B=O1) THEN 1270
+	jsr	FLOAD2
+	ldx	#O1
+	jsr	FLOAD1
+	jsr	FSUB
+	jsr	FTEST
+	beq	L1270
+
+;1240 W=O1
+;1250 P=P+O1 : W=W*B : Y=W+O1 : Z=Y-W : IF (Z=O1) THEN 1250
+
+	ldx	#O1		; W=O1
+	jsr	FLOAD1
+	ldx	#W
+	jsr	FSAVE
+
+L1250	ldx	#P		; P=P+O1
+	jsr	FLOAD1
+	ldx	#O1
+	jsr	FLOAD2
+	jsr	FADD
+	ldx	#P
+	jsr	FSAVE
+
+	ldx	#W		; W=W*B
+	jsr	FLOAD1
+	ldx	#B
+	jsr	FLOAD2
+	jsr	FMUL
+	ldx	#W
+	jsr	FSAVE
+
+	ldx	#W		; Y=W+O1
+	jsr	FLOAD1
+	ldx	#O1
+	jsr	FLOAD2
+	jsr	FADD
+	ldx	#Y
+	jsr	FSAVE
+
+	ldx	#Y		; Z=Y-W
+	jsr	FLOAD2
+	ldx	#W
+	jsr	FLOAD1
+	jsr	FSUB
+	ldx	#Z
+	jsr	FSAVE
+
+	ldx	#Z		; IF (Z=O1) THEN 1250
+	jsr	FLOAD2
+	ldx	#O1
+	jsr	FLOAD1
+	jsr	FSUB
+	jsr	FTEST
+	beq	L1250
+
+;1270 U1=O1/W : U2=B*U1 : PRINT "Closest relative separation found is  U1 ="; U1
+
+L1270	ldx	#O1		; U1=O1/W
+	jsr	FLOAD2
+	ldx	#W
+	jsr	FLOAD1
+	jsr	FDIV
+	ldx	#U1
+	jsr	FSAVE
+
+	ldx	#B		; U2=B*U1
+	jsr	FLOAD1
+	ldx	#U1
+	jsr	FLOAD2
+	jsr	FMUL
+	ldx	#U2
+	jsr	FSAVE
+
+	jsr	puts		; PRINT "Closest relative separation found is  U1 ="; U1
+	word	str1270
+	ldx	#U1
 	jsr	print4
 
 ;;;;; under construction
@@ -249,6 +333,9 @@ err	jsr	puts
 
 okstr	byte	"ok",10,0
 errstr	byte	"err $",0
+
+str1230	byte	" Radix  B = ",0
+str1270	byte	"Closest relative separation found is  U1 =",0
 
 print4	lda	block,x
 	jsr	print1
