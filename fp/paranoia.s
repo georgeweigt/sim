@@ -4,6 +4,10 @@ exit	equ	$fff0
 putc	equ	$fff1
 puts	equ	$fff2
 
+	org	0
+
+t	bss	2
+
 SIGN	EQU	$F3
 X2	EQU	$F4
 M2	EQU	$F5
@@ -11,215 +15,217 @@ X1	EQU	$F8
 M1	EQU	$F9
 E	EQU	$FC
 
-fp1	EQU	X1
-fp2	EQU	X2
-
 block	equ	$300
 
-minusone equ	0
-zero	equ	4
-one	equ	8
-two	equ	12
-three	equ	16
+F1	equ	0
+O	equ	4
+O1	equ	8
+O2	equ	12
+O3	equ	16
+P	equ	20
 
-Radix	equ	124
+B	equ	124
 W	equ	128
 Y	equ	132
 Z	equ	136
 
 	org	$1000
 
-; minusone = -1.0
+; F1 = -1.0
 
 	lda	#1
-	jsr	float
+	jsr	FLOATA
 	jsr	FCOMPL
-	ldx	#minusone
-	jsr	fsave
+	ldx	#F1
+	jsr	FSAVE
 
-; zero = 0.0
+; O = 0.0
 
 	lda	#0
-	jsr	float
-	ldx	#zero
-	jsr	fsave
+	jsr	FLOATA
+	ldx	#O
+	jsr	FSAVE
 
-; one = 1.0
+; O1 = 1.0
 
 	lda	#1
-	jsr	float
-	ldx	#one
-	jsr	fsave
+	jsr	FLOATA
+	ldx	#O1
+	jsr	FSAVE
 
-; two = 2.0
+; O2 = 2.0
 
 	lda	#2
-	jsr	float
-	ldx	#two
-	jsr	fsave
+	jsr	FLOATA
+	ldx	#O2
+	jsr	FSAVE
 
-; three = 3.0
+; O3 = 3.0
 
 	lda	#3
-	jsr	float
-	ldx	#three
-	jsr	fsave
+	jsr	FLOATA
+	ldx	#O3
+	jsr	FSAVE
 
-; zero + zero = zero ?
+; O + O = O ?
 
-	ldx	#zero
-	jsr	fload1
-	ldx	#zero
-	jsr	fload2
+	ldx	#O
+	jsr	FLOAD1
+	ldx	#O
+	jsr	FLOAD2
 	jsr	FADD
-	ldx	#zero
-	jsr	fload2
-	jsr	feq
-	beq	$+5
-	jsr	err
-
-; one - one = zero ?
-
-	ldx	#one
-	jsr	fload1
-	ldx	#one
-	jsr	fload2
+	ldx	#O
+	jsr	FLOAD2
 	jsr	FSUB
-	ldx	#zero
-	jsr	fload2
-	jsr	feq
+	jsr	FTEST
 	beq	$+5
 	jsr	err
 
-; one + one = two ?
+; O1 - O1 = O ?
 
-	ldx	#one
-	jsr	fload1
-	ldx	#one
-	jsr	fload2
+	ldx	#O1
+	jsr	FLOAD1
+	ldx	#O1
+	jsr	FLOAD2
+	jsr	FSUB
+	ldx	#O
+	jsr	FLOAD2
+	jsr	FSUB
+	jsr	FTEST
+	beq	$+5
+	jsr	err
+
+; O1 + O1 = O2 ?
+
+	ldx	#O1
+	jsr	FLOAD1
+	ldx	#O1
+	jsr	FLOAD2
 	jsr	FADD
-	ldx	#two
-	jsr	fload2
-	jsr	feq
+	ldx	#O2
+	jsr	FLOAD2
+	jsr	FSUB
+	jsr	FTEST
 	beq	$+5
 	jsr	err
 
-; -zero = zero ?
+; -O = O ?
 
-	ldx	#zero
-	jsr	fload1
+	ldx	#O
+	jsr	FLOAD1
 	jsr	FCOMPL
-	ldx	#zero
-	jsr	fload2
-	jsr	feq	
+	jsr	FTEST
 	beq	$+5
 	jsr	err
 
-; two + one = three?
+; O2 + O1 = O3?
 
-	ldx	#two
-	jsr	fload1
-	ldx	#one
-	jsr	fload2
+	ldx	#O2
+	jsr	FLOAD1
+	ldx	#O1
+	jsr	FLOAD2
 	jsr	FADD
-	ldx	#three
-	jsr	fload2
-	jsr	feq
+	ldx	#O3
+	jsr	FLOAD2
 	beq	$+5
 	jsr	err
 
-; Searching for Radix and Precision.
+;1160 PRINT "Searching for radix  B  and precision  P ; ";
+;1170 W=O1
+;1180 W=W+W : Y=W+O1 : Z=Y-W : Y=Z-O1 : IF (F1+ABS(Y)<O) THEN 1180
+;1190 '... now  W  is just big enough that  |((W+1)-W)-1| >= 1 ...
+;1200 P=O :  Y=O1
+;1210 B=W+Y : Y=Y+Y : B=B-W : IF (B=O) THEN 1210
 
-	jsr	puts
-	word	str1
-
-	ldx	#one		; W = one
-	jsr	fload1
+	ldx	#O1		; W=O1
+	jsr	FLOAD1
 	ldx	#W
-	jsr	fsave
+	jsr	FSAVE
 
-loop1	ldx	#W		; W = W + W
-	jsr	fload1
+L1180	ldx	#W		; W=W+W
+	jsr	FLOAD1
 	ldx	#W
-	jsr	fload2
+	jsr	FLOAD2
 	jsr	FADD
 	ldx	#W
-	jsr	fsave
+	jsr	FSAVE
 
-	ldx	#W		; Y = W + one
-	jsr	fload1
-	ldx	#one
-	jsr	fload2
+	ldx	#W		; Y=W+O1
+	jsr	FLOAD1
+	ldx	#O1
+	jsr	FLOAD2
 	jsr	FADD
 	ldx	#Y
-	jsr	fsave
+	jsr	FSAVE
 
-	ldx	#Y		; Z = Y - W
-	jsr	fload1
+	ldx	#Y		; Z=Y-W
+	jsr	FLOAD1
 	ldx	#W
-	jsr	fload2
+	jsr	FLOAD2
 	jsr	FSUB
 	ldx	#Z
-	jsr	fsave
+	jsr	FSAVE
 
-	ldx	#Z		; Y = Z - one
-	jsr	fload1
-	ldx	#one
-	jsr	fload2
+	ldx	#Z		; Y=Z-O1
+	jsr	FLOAD1
+	ldx	#O1
+	jsr	FLOAD2
 	jsr	FSUB
 	ldx	#Y
-	jsr	fsave
+	jsr	FSAVE
 
-	ldx	#Y		; fabs(Y) + minusone
-	jsr	fload1
-	jsr	fabs
-	ldx	#minusone
-	jsr	fload2
+	ldx	#Y		; IF (F1+ABS(Y)<O) THEN 1180
+	jsr	FLOAD1
+	jsr	FABS
+	ldx	#F1
+	jsr	FLOAD2
 	jsr	FADD
+	lda	M1
+	bmi	L1180
 
-	lda	M1		; loop if negative
-	bmi	loop1
+	ldx	#O		; P=O
+	jsr	FLOAD1
+	ldx	#P
+	jsr	FSAVE
 
-	ldx	#one		; Y = one
-	jsr	fload1
+	ldx	#O1		; Y=O1
+	jsr	FLOAD1
 	ldx	#Y
-	jsr	fsave
+	jsr	FSAVE
 
-loop2	ldx	#W		; Radix = W + Y
-	jsr	fload1
+L1210	ldx	#W		; B=W+Y
+	jsr	FLOAD1
 	ldx	#Y
-	jsr	fload2
+	jsr	FLOAD2
 	jsr	FADD
-	ldx	#Radix
-	jsr	fsave
+	ldx	#B
+	jsr	FSAVE
 
-	ldx	#Y		; Y = Y + Y
-	jsr	fload1
+	ldx	#Y		; Y=Y+Y
+	jsr	FLOAD1
 	ldx	#Y
-	jsr	fload2
+	jsr	FLOAD2
 	jsr	FADD
 	ldx	#Y
-	jsr	fsave
+	jsr	FSAVE
 
-	ldx	#Radix		; Radix = Radix - W
-	jsr	fload1
+	ldx	#B		; B=B-W
+	jsr	FLOAD1
 	ldx	#W
-	jsr	fload2
+	jsr	FLOAD2
 	jsr	FSUB
-	ldx	#Radix
-	jsr	fsave
+	ldx	#B
+	jsr	FSAVE
 
-	ldx	#Radix		; loop if Radix = 0
-	jsr	fload1
-	ldx	#zero
-	jsr	fload2
-	jsr	feq
-	beq	loop2
+	ldx	#B		; IF (B=O) THEN 1210
+	jsr	FLOAD1
+	jsr	FTEST
+	beq	L1210
 
-	ldx	#Radix
+	ldx	#B
 	jsr	print4
 
-	ldx	#minusone
+	ldx	#F1
 	jsr	print4
 
 ;;;;; under construction
@@ -230,26 +236,39 @@ ok	jsr	puts
 
 err	jsr	puts
 	word	errstr
+	pla			; print address
+	sta	t
+	pla
+	sta	t+1
+	sec
+	lda	t
+	sbc	#2
+	sta	t
+	lda	t+1
+	sbc	#0
+	jsr	print1
+	lda	t
+	jsr	print1
+	lda	#10
+	jsr	putc
 	jsr	exit
 
 okstr	byte	"ok",10,0
-errstr	byte	"err",10,0
-
-str1	byte	"Searching for Radix and Precision.",10,0
+errstr	byte	"err from $",0
 
 print4	lda	block,x
-	jsr	print41
+	jsr	print1
 	lda	block+1,x
-	jsr	print41
+	jsr	print1
 	lda	block+2,x
-	jsr	print41
+	jsr	print1
 	lda	block+3,x
-	jsr	print41
+	jsr	print1
 	lda	#10
 	jsr	putc
 	rts
 
-print41	pha
+print1	pha
 	lsr	a
 	lsr	a
 	lsr	a
@@ -270,57 +289,50 @@ print41	pha
 	jsr	putc
 	rts
 
-feq	lda	fp1
-	cmp	fp2
-	bne	feq1
-	lda	fp1+1
-	cmp	fp2+1
-	bne	feq1
-	lda	fp1+2
-	cmp	fp2+2
-	bne	feq1
-	lda	fp1+3
-	cmp	fp2+3
-feq1	rts
+FTEST	lda	X1
+	ora	M1
+	ora	M1+1
+	ora	M1+2
+	rts
 
-float	sta	M1+1
+FLOATA	sta	M1+1
 	lda	#0
 	sta	M1
 	sta	M1+2
 	jsr	FLOAT
 	rts
 
-fload1	lda	block,x
-	sta	fp1
+FLOAD1	lda	block,x
+	sta	X1
 	lda	block+1,x
-	sta	fp1+1
+	sta	M1
 	lda	block+2,x
-	sta	fp1+2
+	sta	M1+1
 	lda	block+3,x
-	sta	fp1+3
+	sta	M1+2
 	rts
 
-fload2	lda	block,x
-	sta	fp2
+FLOAD2	lda	block,x
+	sta	X2
 	lda	block+1,x
-	sta	fp2+1
+	sta	M2
 	lda	block+2,x
-	sta	fp2+2
+	sta	M2+1
 	lda	block+3,x
-	sta	fp2+3
+	sta	M2+2
 	rts
 
-fsave	lda	fp1
+FSAVE	lda	X1
 	sta	block,x
-	lda	fp1+1
+	lda	M1
 	sta	block+1,x
-	lda	fp1+2
+	lda	M1+1
 	sta	block+2,x
-	lda	fp1+3
+	lda	M1+2
 	sta	block+3,x
 	rts
 
-fabs	lda	M1
+FABS	lda	M1
 	bpl	$+5
 	jsr	FCOMPL
 	rts
