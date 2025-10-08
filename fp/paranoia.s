@@ -238,9 +238,12 @@ err	jsr	puts
 okstr	byte	"ok",10,0
 errstr	byte	"err $",0
 
+str1160	byte	"Searching for radix  B  and precision  P ; ",0
 str1230	byte	" Radix  B = ",0
 str1270	byte	"Closest relative separation found is  U1 =",0
 str1280	byte	"Recalculating radix and precision ",0
+str1380	byte	" confirms closest relative separation  U1 .",10,0
+str1390	byte	" gets better closest relative separation  U1 = ",0
 
 print4	lda	vars,x
 	jsr	print1
@@ -447,6 +450,11 @@ main	lda	#0		; O=0
 	beq	$+5
 	jsr	err
 
+;1160 PRINT "Searching for radix  B  and precision  P ; ";
+
+L1160	jsr	puts
+	word	str1160
+
 ;1170 W=O1
 
 L1170	ldx	#O1
@@ -497,7 +505,7 @@ L1180	ldx	#W		; W=W+W
 	jsr	ftest
 	bmi	L1180
 
-;1200 P=O : Y=O1
+;1200 P=O :  Y=O1
 
 L1200	ldx	#O		; P=O
 	jsr	fload1
@@ -770,5 +778,162 @@ L1320	ldx	#X		; U2=X
 	beq	L1340
 	bpl	L1320
 
-L1340
+;1340 X=O2/O3 : F6=X-F2 : F3=F6+F6 : X=F3-F2 : X=ABS(X+F6) : IF (X<U1) THEN X=U1
+
+L1340	ldx	#O2		; X=O2/O3
+	jsr	fload2
+	ldx	#O3
+	jsr	fload1
+	jsr	fdiv
+	ldx	#X
+	jsr	fsave
+
+	ldx	#X		; F6=X-F2
+	jsr	fload2
+	ldx	#F2
+	jsr	fload1
+	jsr	fsub
+	ldx	#F6
+	jsr	fsave
+
+	ldx	#F6		; F3=F6+F6
+	jsr	fload1
+	ldx	#F6
+	jsr	fload2
+	jsr	fadd
+	ldx	#F3
+	jsr	fsave
+
+	ldx	#F3		; X=F3-F2
+	jsr	fload2
+	ldx	#F2
+	jsr	fload1
+	jsr	fsub
+	ldx	#X
+	jsr	fsave
+
+	ldx	#X		; X=ABS(X+F6)
+	jsr	fload1
+	ldx	#F6
+	jsr	fload2
+	jsr	fadd
+	jsr	fabs
+	ldx	#X
+	jsr	fsave
+
+	ldx	#X		; IF (X<U1) THEN X=U1
+	jsr	fload2
+	ldx	#U1
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
+	bpl	L1360
+	ldx	#U1
+	jsr	fload1
+	ldx	#X
+	jsr	fsave
+
+;1360 U1=X : Y=F2*U1+T2*U1*U1 : Y=F2-Y : X=F2+Y : Y=F2-X : X=F2+Y : IF (U1>X AND X>O) THEN 1360
+
+L1360	ldx	#X		; U1=X
+	jsr	fload1
+	ldx	#U1
+	jsr	fsave
+
+	ldx	#F2		; Y=F2*U1+T2*U1*U1
+	jsr	fload1
+	ldx	#U1
+	jsr	fload2
+	jsr	fmul
+	ldx	#T
+	jsr	fsave
+	ldx	#T2
+	jsr	fload1
+	ldx	#U1
+	jsr	fload2
+	jsr	fmul
+	ldx	#U1
+	jsr	fload2
+	jsr	fmul
+	ldx	#T
+	jsr	fload2
+	jsr	fadd
+	ldx	#Y
+	jsr	fsave
+
+	ldx	#F2		; Y=F2-Y
+	jsr	fload2
+	ldx	#Y
+	jsr	fload1
+	jsr	fsub
+	ldx	#Y
+	jsr	fsave
+
+	ldx	#F2		; X=F2+Y
+	jsr	fload1
+	ldx	#Y
+	jsr	fload2
+	jsr	fadd
+	ldx	#X
+	jsr	fsave
+
+	ldx	#F2		; Y=F2-X
+	jsr	fload2
+	ldx	#X
+	jsr	fload1
+	jsr	fsub
+	ldx	#Y
+	jsr	fsave
+
+	ldx	#F2		; X=F2+Y
+	jsr	fload1
+	ldx	#Y
+	jsr	fload2
+	jsr	fadd
+	ldx	#X
+	jsr	fsave
+
+	ldx	#U1		; IF (U1>X AND X>O) THEN 1360
+	jsr	fload2
+	ldx	#X
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
+	bmi	L1380
+	beq	L1380
+	ldx	#X
+	jsr	fload1
+	jsr	ftest
+	bmi	L1380
+	beq	L1380
+	jmp	L1360
+
+;1380 IF (U1=E1) THEN PRINT " confirms closest relative separation  U1 ."
+
+L1380	ldx	#U1
+	jsr	fload2
+	ldx	#E1
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
+	bne	L1390
+	jsr	puts
+	word	str1380
+
+;1390 IF (U1><E1) THEN PRINT " gets better closest relative separation  U1 = "; U1
+
+L1390	ldx	#U1
+	jsr	fload2
+	ldx	#E1
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
+	beq	L1400
+	jsr	puts
+	word	str1390
+	ldx	#U1
+	jsr	print4
+
+L1400
+
 	jmp	ok
