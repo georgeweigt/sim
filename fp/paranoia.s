@@ -211,16 +211,27 @@ t	bss	2
 
 	org	start+3
 
+okstr	db	"ok",10,0
+errstr	db	"err $",0
+str1160	db	"Searching for radix  B  and precision  P ; ",0
+str1230	db	" Radix  B = ",0
+str1270	db	"Closest relative separation found is  U1 =",0
+str1280	db	"Recalculating radix and precision ",0
+str1380	db	" confirms closest relative separation  U1 .",10,0
+str1390	db	" gets better closest relative separation  U1 = ",0
+str1410	db	"Radix  B  confirmed.",10,0
+str1420	db	"MYSTERY: recalculated radix  B = ",0
+
 exit	equ	$fff0
 putc	equ	$fff1
-puts	equ	$fff2
+print	equ	$fff2
 
-ok	jsr	puts
-	word	okstr
+ok	jsr	print
+	dw	okstr
 	jsr	exit
 
-err	jsr	puts
-	word	errstr
+err	jsr	print
+	dw	errstr
 	pla			; print address
 	sta	t
 	pla
@@ -237,18 +248,6 @@ err	jsr	puts
 	lda	#10
 	jsr	putc
 	jsr	exit
-
-okstr	byte	"ok",10,0
-errstr	byte	"err $",0
-
-str1160	byte	"Searching for radix  B  and precision  P ; ",0
-str1230	byte	" Radix  B = ",0
-str1270	byte	"Closest relative separation found is  U1 =",0
-str1280	byte	"Recalculating radix and precision ",0
-str1380	byte	" confirms closest relative separation  U1 .",10,0
-str1390	byte	" gets better closest relative separation  U1 = ",0
-str1410	byte	"Radix  B  confirmed.",10,0
-str1420	byte	"MYSTERY: recalculated radix  B = ",0
 
 print4	lda	vars,x
 	jsr	print1
@@ -285,8 +284,7 @@ ftest	lda	M1
 	bpl	ftest1
 	lda	#-1
 	rts
-ftest1	ora	X1
-	ora	M1+1
+ftest1	ora	M1+1
 	ora	M1+2
 	beq	ftest2
 	lda	#1
@@ -334,8 +332,8 @@ fabs	lda	M1
 	jsr	FCOMPL
 	rts
 
-ferr	jsr	puts
-	word	ferr1
+ferr	jsr	print
+	dw	ferr1
 	jsr	exit
 
 ferr1	byte	"OVLOC",10,0
@@ -410,9 +408,9 @@ main	lda	#0		; O=0
 ; O1 - O1 = O ?
 
 	ldx	#O1
-	jsr	fload1
-	ldx	#O1
 	jsr	fload2
+	ldx	#O1
+	jsr	fload1
 	jsr	fsub
 	jsr	ftest
 	beq	$+5
@@ -457,8 +455,8 @@ main	lda	#0		; O=0
 
 ;1160 PRINT "Searching for radix  B  and precision  P ; ";
 
-L1160	jsr	puts
-	word	str1160
+L1160	jsr	print
+	dw	str1160
 
 ;1170 W=O1
 
@@ -566,8 +564,8 @@ L1220	ldx	#B		; IF (B<O2) THEN B=O1
 
 ;1230 PRINT " Radix  B = "; B : IF (B=O1) THEN 1270
 
-L1230	jsr	puts		; PRINT " Radix  B = "; B
-	word	str1230
+L1230	jsr	print		; PRINT " Radix  B = "; B
+	dw	str1230
 	ldx	#B
 	jsr	print4
 
@@ -646,15 +644,15 @@ L1270	ldx	#O1		; U1=O1/W
 	ldx	#U2
 	jsr	fsave
 
-	jsr	puts		; PRINT "Closest relative separation found is  U1 ="; U1
-	word	str1270
+	jsr	print		; PRINT "Closest relative separation found is  U1 ="; U1
+	dw	str1270
 	ldx	#U1
 	jsr	print4
 
 ;1280 PRINT : PRINT "Recalculating radix and precision ";
 
-L1280	jsr	puts
-	word	str1280
+L1280	jsr	print
+	dw	str1280
 
 ;1290 E0=B : E1=U1 : E9=U2 : E3=P
 
@@ -931,8 +929,8 @@ L1380	ldx	#U1
 	jsr	fsub
 	jsr	ftest
 	bne	L1390
-	jsr	puts
-	word	str1380
+	jsr	print
+	dw	str1380
 
 ;1390 IF (U1><E1) THEN PRINT " gets better closest relative separation  U1 = "; U1
 
@@ -943,8 +941,8 @@ L1390	ldx	#U1
 	jsr	fsub
 	jsr	ftest
 	beq	L1400
-	jsr	puts
-	word	str1390
+	jsr	print
+	dw	str1390
 	ldx	#U1
 	jsr	print4
 
@@ -1004,8 +1002,8 @@ L1410	lda	#100		; B=INT(.01 + U2/U1)
 	jsr	fsub
 	jsr	ftest
 	bne	L1420
-	jsr	puts
-	word	str1410
+	jsr	print
+	dw	str1410
 
 ;1420 IF (B><E0) THEN PRINT "MYSTERY: recalculated radix  B = "; B
 
@@ -1016,8 +1014,8 @@ L1420	ldx	#B
 	jsr	fsub
 	jsr	ftest
 	beq	L1430
-	jsr	puts
-	word	str1420
+	jsr	print
+	dw	str1420
 	ldx	#B
 	jsr	print4
 

@@ -149,6 +149,10 @@ scan_line(void)
 		break;
 
 	case 'd':
+		if (strcmp(tokenbuf, "db") == 0) {
+			scan_byte();
+			break;
+		}
 		if (strcmp(tokenbuf, "dec") == 0) {
 			scan_dec();
 			break;
@@ -159,6 +163,10 @@ scan_line(void)
 		}
 		if (strcmp(tokenbuf, "dey") == 0) {
 			scan_dey();
+			break;
+		}
+		if (strcmp(tokenbuf, "dw") == 0) {
+			scan_word();
 			break;
 		}
 		err = 1;
