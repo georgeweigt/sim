@@ -286,6 +286,7 @@ ftest	lda	M1
 	rts
 ftest1	ora	M1+1
 	ora	M1+2
+	ora	X1
 	beq	ftest2
 	lda	#1
 ftest2	rts
@@ -336,7 +337,7 @@ ferr	jsr	print
 	dw	ferr1
 	jsr	exit
 
-ferr1	byte	"OVLOC",10,0
+ferr1	db	"OVLOC",10,0
 
 ;;;;;
 
@@ -396,6 +397,8 @@ main	lda	#0		; O=0
 
 ; FIXME
 
+	ldx	#O
+	jsr	print4
 	ldx	#O1
 	jsr	print4
 	ldx	#O2

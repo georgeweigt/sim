@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+void print4(float f);
+
 int
 main(void)
 {
@@ -52,7 +54,7 @@ main(void)
 		Y = W + O1;
 		Z = Y - W;
 		Y = Z - O1;
-	} while (F1 + fabsf(Y) < 0);
+	} while (F1 + fabsf(Y) < O);
 
 	// 1200 P=O :  Y=O1
 
@@ -152,10 +154,20 @@ L1270:	U1 = O1 / W;
 	// 1380 IF (U1=E1) THEN PRINT " confirms closest relative separation  U1 ."
 
 	if (U1 == E1)
-		printf("confirms closest relative sepraration U1.\n");
+		printf("confirms closest relative separation U1.\n");
 
 	// 1390 IF (U1><E1) THEN PRINT " gets better closest relative separation  U1 = "; U1
 
 	if (U1 != E1)
 		printf("gets better closest relative separation U1 = %g\n", U1);
+}
+
+void
+print4(float f)
+{
+	printf("%g %02x %02x %02x %02x\n", f,
+		((unsigned char *) &f)[3],
+		((unsigned char *) &f)[2],
+		((unsigned char *) &f)[1],
+		((unsigned char *) &f)[0]);
 }
