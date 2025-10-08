@@ -35,7 +35,7 @@ main(void)
 	O2 = 2.0;
 	O3 = 3.0;
 	O4 = 4.0;
-	T2 = 32;
+	T2 = 32.0;
 
 	// 1160 PRINT "Searching for radix  B  and precision  P ; ";
 

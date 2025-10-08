@@ -394,6 +394,17 @@ main	lda	#0		; O=0
 	ldx	#F2
 	jsr	fsave
 
+; FIXME
+
+	ldx	#O1
+	jsr	print4
+	ldx	#O2
+	jsr	print4
+	ldx	#F1
+	jsr	print4
+	ldx	#F2
+	jsr	print4
+
 ;1160 PRINT "Searching for radix  B  and precision  P ; ";
 
 L1160	jsr	print
@@ -738,7 +749,10 @@ L1320	ldx	#X		; U2=X
 	bmi	L1340
 	beq	L1340
 	ldx	#X
+	jsr	fload2
+	ldx	#O
 	jsr	fload1
+	jsr	fsub
 	jsr	ftest
 	bmi	L1340
 	beq	L1340
