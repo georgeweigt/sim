@@ -13,20 +13,21 @@ E0	bss	4
 E1	bss	4
 E3	bss	4
 E9	bss	4
-F1	bss	4
-F2	bss	4
+F1	bss	4		; F1=-1
+F2	bss	4		; F2=1/2
 F3	bss	4
 F6	bss	4
-O	bss	4
-O1	bss	4
-O2	bss	4
-O3	bss	4
-O4	bss	4
-O8	bss	4
-O9	bss	4
+F9	bss	4
+O	bss	4		; O=0
+O1	bss	4		; O1=1
+O2	bss	4		; O2=2
+O3	bss	4		; O3=3
+O4	bss	4		; O4=4
+O8	bss	4		; O8=8
+O9	bss	4		; O9=9
 P	bss	4
 T	bss	4
-T2	bss	4
+T2	bss	4		; T2=32
 U1	bss	4
 U2	bss	4
 W	bss	4
@@ -195,6 +196,8 @@ fsub	equ	FSUB
 fmul	equ	FMUL
 fdiv	equ	FDIV
 fcompl	equ	FCOMPL
+fix	equ	FIX
+float	equ	FLOAT
 
 ;;;;;
 
@@ -244,6 +247,8 @@ str1270	byte	"Closest relative separation found is  U1 =",0
 str1280	byte	"Recalculating radix and precision ",0
 str1380	byte	" confirms closest relative separation  U1 .",10,0
 str1390	byte	" gets better closest relative separation  U1 = ",0
+str1410	byte	"Radix  B  confirmed.",10,0
+str1420	byte	"MYSTERY: recalculated radix  B = ",0
 
 print4	lda	vars,x
 	jsr	print1
@@ -291,7 +296,7 @@ floata	sta	M1+1
 	lda	#0
 	sta	M1
 	sta	M1+2
-	jsr	FLOAT
+	jsr	float
 	rts
 
 fload1	lda	vars,x
@@ -764,19 +769,28 @@ L1320	ldx	#X		; U2=X
 	ldx	#Y
 	jsr	fsave
 
+	ldx	#Y		; X=Y-O1
+	jsr	fload2
+	ldx	#O1
+	jsr	fload1
+	jsr	fsub
+	ldx	#X
+	jsr	fsave
+
 	ldx	#U2		; IF (U2>X AND X>O) THEN 1320
 	jsr	fload2
 	ldx	#X
 	jsr	fload1
 	jsr	fsub
 	jsr	ftest
-	beq	L1340
 	bmi	L1340
+	beq	L1340
 	ldx	#X
 	jsr	fload1
 	jsr	ftest
+	bmi	L1340
 	beq	L1340
-	bpl	L1320
+	jmp	L1320
 
 ;1340 X=O2/O3 : F6=X-F2 : F3=F6+F6 : X=F3-F2 : X=ABS(X+F6) : IF (X<U1) THEN X=U1
 
@@ -934,6 +948,79 @@ L1390	ldx	#U1
 	ldx	#U1
 	jsr	print4
 
-L1400
+;1400 W=O1/U1 : F9=(F2-U1)+F2
+
+L1400	ldx	#O1		; W=O1/U1
+	jsr	fload2
+	ldx	#U1
+	jsr	fload1
+	jsr	fdiv
+	ldx	#W
+	jsr	fsave
+
+	ldx	#F2		; F9=(F2-U1)+F2
+	jsr	fload2
+	ldx	#U1
+	jsr	fload1
+	jsr	fsub
+	ldx	#F2
+	jsr	fload2
+	jsr	fadd
+	ldx	#F9
+	jsr	fsave
+
+;1410 B=INT(.01 + U2/U1) : IF (B=E0) THEN PRINT "Radix  B  confirmed."
+
+L1410	lda	#100		; B=INT(.01 + U2/U1)
+	jsr	floata
+	ldx	#T
+	jsr	fsave
+	ldx	#O1
+	jsr	fload2
+	ldx	#T
+	jsr	fload1
+	jsr	fdiv
+	ldx	#T
+	jsr	fsave
+	ldx	#U2
+	jsr	fload2
+	ldx	#U1
+	jsr	fload1
+	jsr	fdiv
+	ldx	#T
+	jsr	fload2
+	jsr	fadd
+	jsr	fix
+	lda	#0
+	sta	M1+2
+	jsr	float
+	ldx	#B
+	jsr	fsave
+
+	ldx	#B		; IF (B=E0) THEN PRINT "Radix  B  confirmed."
+	jsr	fload2
+	ldx	#E0
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
+	bne	L1420
+	jsr	puts
+	word	str1410
+
+;1420 IF (B><E0) THEN PRINT "MYSTERY: recalculated radix  B = "; B
+
+L1420	ldx	#B
+	jsr	fload2
+	ldx	#E0
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
+	beq	L1430
+	jsr	puts
+	word	str1420
+	ldx	#B
+	jsr	print4
+
+L1430
 
 	jmp	ok
