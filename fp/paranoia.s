@@ -328,9 +328,9 @@ fsave	lda	X1
 	rts
 
 fabs	lda	M1
-	bpl	$+5
-	jsr	FCOMPL
-	rts
+	bpl	fabs1
+	jsr	fcompl
+fabs1	rts
 
 ferr	jsr	print
 	dw	ferr1
@@ -382,7 +382,7 @@ main	lda	#0		; O=0
 
 	ldx	#O1		; F1=-O1
 	jsr	fload1
-	jsr	FCOMPL
+	jsr	fcompl
 	ldx	#F1
 	jsr	fsave
 
@@ -393,65 +393,6 @@ main	lda	#0		; O=0
 	jsr	fdiv
 	ldx	#F2
 	jsr	fsave
-
-; O + O = O ?
-
-	ldx	#O
-	jsr	fload1
-	ldx	#O
-	jsr	fload2
-	jsr	fadd
-	jsr	ftest
-	beq	$+5
-	jsr	err
-
-; O1 - O1 = O ?
-
-	ldx	#O1
-	jsr	fload2
-	ldx	#O1
-	jsr	fload1
-	jsr	fsub
-	jsr	ftest
-	beq	$+5
-	jsr	err
-
-; O1 + O1 = O2 ?
-
-	ldx	#O1
-	jsr	fload1
-	ldx	#O1
-	jsr	fload2
-	jsr	fadd
-	ldx	#O2
-	jsr	fload2
-	jsr	fsub
-	jsr	ftest
-	beq	$+5
-	jsr	err
-
-; -O = O ?
-
-	ldx	#O
-	jsr	fload1
-	jsr	FCOMPL
-	jsr	ftest
-	beq	$+5
-	jsr	err
-
-; O2 + O1 = O3 ?
-
-	ldx	#O2
-	jsr	fload1
-	ldx	#O1
-	jsr	fload2
-	jsr	fadd
-	ldx	#O3
-	jsr	fload2
-	jsr	fsub
-	jsr	ftest
-	beq	$+5
-	jsr	err
 
 ;1160 PRINT "Searching for radix  B  and precision  P ; ";
 
@@ -505,6 +446,13 @@ L1180	ldx	#W		; W=W+W
 	ldx	#F1
 	jsr	fload2
 	jsr	fadd
+	ldx	#T
+	jsr	fsave
+	ldx	#T
+	jsr	fload2
+	ldx	#O
+	jsr	fload1
+	jsr	fsub
 	jsr	ftest
 	bmi	L1180
 
@@ -545,7 +493,13 @@ L1210	ldx	#W		; B=W+Y
 	jsr	fsub
 	ldx	#B
 	jsr	fsave
-	jsr	ftest		; IF (B=O) THEN 1210
+
+	ldx	#B		; IF (B=O) THEN 1210
+	jsr	fload2
+	ldx	#O
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
 	beq	L1210
 
 ;1220 IF (B<O2) THEN B=O1
@@ -914,7 +868,10 @@ L1360	ldx	#X		; U1=X
 	bmi	L1380
 	beq	L1380
 	ldx	#X
+	jsr	fload2
+	ldx	#O
 	jsr	fload1
+	jsr	fsub
 	jsr	ftest
 	bmi	L1380
 	beq	L1380
