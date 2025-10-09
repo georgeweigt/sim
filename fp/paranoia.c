@@ -165,7 +165,7 @@ L1270:	U1 = O1 / W;
 void
 print4(float f)
 {
-	printf("%g %02x %02x %02x %02x\n", f,
+	printf("\n%g %02x %02x %02x %02x\n", f,
 		((unsigned char *) &f)[3],
 		((unsigned char *) &f)[2],
 		((unsigned char *) &f)[1],

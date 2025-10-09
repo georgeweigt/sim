@@ -395,19 +395,6 @@ main	lda	#0		; O=0
 	ldx	#F2
 	jsr	fsave
 
-; FIXME
-
-	ldx	#O
-	jsr	print4
-	ldx	#O1
-	jsr	print4
-	ldx	#O2
-	jsr	print4
-	ldx	#F1
-	jsr	print4
-	ldx	#F2
-	jsr	print4
-
 ;1160 PRINT "Searching for radix  B  and precision  P ; ";
 
 L1160	jsr	print
