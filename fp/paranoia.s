@@ -896,14 +896,14 @@ L1380	ldx	#U1
 
 ;1390 IF (U1><E1) THEN PRINT " gets better closest relative separation  U1 = "; U1
 
-L1390	ldx	#U1		;;; change to handle U1 is bigger than E1
+L1390	ldx	#U1		;;; changed to handle U1 worse than E1
 	jsr	fload2
 	ldx	#E1
 	jsr	fload1
 	jsr	fsub
 	jsr	ftest
 	bpl	L1395		;;; branch if U1 >= E1
-	jsr	print		;;; U1 < E1 (better)
+	jsr	print		;;; U1 < E1 (U1 better than E1)
 	dw	str1390
 	ldx	#U1
 	jsr	print4
@@ -916,7 +916,7 @@ L1395	ldx	#U1
 	jsr	ftest
 	bmi	L1400		;;; branch if U1 < E1
 	beq	L1400		;;; branch if U1 = E1
-	jsr	print		;;; U1 > E1 (worse)
+	jsr	print		;;; U1 > E1 (U1 worse than E1)
 	dw	str1395
 	ldx	#E1		;;; restore U1
 	jsr	fload1
