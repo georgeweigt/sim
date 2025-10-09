@@ -219,6 +219,7 @@ str1270	db	"Closest relative separation found is  U1 =",0
 str1280	db	"Recalculating radix and precision ",0
 str1380	db	" confirms closest relative separation  U1 .",10,0
 str1390	db	" gets better closest relative separation  U1 = ",0
+str1395	db	" gets worse, restore U1.",10,0
 str1410	db	"Radix  B  confirmed.",10,0
 str1420	db	"MYSTERY: recalculated radix  B = ",0
 
@@ -895,17 +896,32 @@ L1380	ldx	#U1
 
 ;1390 IF (U1><E1) THEN PRINT " gets better closest relative separation  U1 = "; U1
 
-L1390	ldx	#U1
+L1390	ldx	#U1		;;; change to handle U1 is bigger than E1
 	jsr	fload2
 	ldx	#E1
 	jsr	fload1
 	jsr	fsub
 	jsr	ftest
-	beq	L1400
-	jsr	print
+	bpl	L1395		;;; branch if U1 >= E1
+	jsr	print		;;; U1 < E1 (better)
 	dw	str1390
 	ldx	#U1
 	jsr	print4
+
+L1395	ldx	#U1
+	jsr	fload2
+	ldx	#E1
+	jsr	fload1
+	jsr	fsub
+	jsr	ftest
+	bmi	L1400		;;; branch if U1 < E1
+	beq	L1400		;;; branch if U1 = E1
+	jsr	print		;;; U1 > E1 (worse)
+	dw	str1395
+	ldx	#E1		;;; restore U1
+	jsr	fload1
+	ldx	#U1
+	jsr	fsave
 
 ;1400 W=O1/U1 : F9=(F2-U1)+F2
 
