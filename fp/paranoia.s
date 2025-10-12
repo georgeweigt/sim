@@ -287,7 +287,6 @@ ftest	lda	M1
 	rts
 ftest1	ora	M1+1
 	ora	M1+2
-	ora	X1
 	beq	ftest2
 	lda	#1
 ftest2	rts
