@@ -1,5 +1,3 @@
-Tiny 6502 simulator with built-in assembler
-
 Build and run
 ```
 make
@@ -11,7 +9,7 @@ Run a self test
 ./sim selftest.s
 ```
 
-Run Basic ported from Miscrosoft source code.
+Run Basic ported from Microsoft source code.
 Press return two times to accept default settings.
 ```
 ./sim basic.s
