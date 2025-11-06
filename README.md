@@ -11,6 +11,24 @@ Run a self test
 ./sim selftest.s
 ```
 
+Run Basic ported from Miscrosoft source code.
+Press return two times to accept default settings.
+```
+./sim basic.s
+starting at $df00
+
+MEMORY SIZE? 
+TERMINAL WIDTH? 
+
+ 56319 BYTES FREE
+
+COPYRIGHT 1978 MICROSOFT
+
+OK
+```
+
+#
+
 Command line options
 ```
 -l      Send a listing to stdout and exit
@@ -60,20 +78,4 @@ Built-in functions
         word    str
 
         jsr     $fff3   ; read input string from console into page 2 buffer
-```
-
-`basic.s` is a modified version of the original Microsoft source code.
-Press return two times to accept default settings.
-```
-./sim basic.s
-starting at $df00
-
-MEMORY SIZE? 
-TERMINAL WIDTH? 
-
- 56319 BYTES FREE
-
-COPYRIGHT 1978 MICROSOFT
-
-OK
 ```
