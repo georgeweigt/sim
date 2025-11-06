@@ -62,7 +62,7 @@ Built-in functions
         jsr     $fff3   ; read input string from console into page 2 buffer
 ```
 
-Program `basic.s` is under development as a port from the original Microsoft source code.
+`basic.s` is a modified version of the original Microsoft source code.
 Press return two times to accept default settings.
 ```
 ./sim basic.s
@@ -77,5 +77,3 @@ COPYRIGHT 1978 MICROSOFT
 
 OK
 ```
-
-See also [Microsoft BASIC for 6502](https://github.com/microsoft/BASIC-M6502)
