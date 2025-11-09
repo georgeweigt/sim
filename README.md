@@ -27,7 +27,7 @@ OK
 
 #
 
-Command line options
+Simulator command line options
 ```
 -l      Send a listing to stdout and exit
 -a      Trace all
