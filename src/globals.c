@@ -1,5 +1,4 @@
 char *buf;
-int buflen;
 int token;
 int tokenlen;
 char tokenbuf[TOKENBUFLEN + 1];

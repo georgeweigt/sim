@@ -2274,7 +2274,6 @@ update_nz(uint32_t t)
 		flags &= ~Z;
 }
 char *buf;
-int buflen;
 int token;
 int tokenlen;
 char tokenbuf[TOKENBUFLEN + 1];
@@ -2466,7 +2465,7 @@ print_stack(void)
 char *
 readfile(char *filename)
 {
-	int fd;
+	int fd, n;
 	char *buf;
 	off_t t;
 
@@ -2481,7 +2480,7 @@ readfile(char *filename)
 
 	t = lseek(fd, 0, SEEK_END);
 
-	if (t < 0) {
+	if (t < 0 || t > 0x1000000) { // 16 MB max
 		close(fd);
 		return NULL;
 	}
@@ -2491,16 +2490,16 @@ readfile(char *filename)
 		return NULL;
 	}
 
-	buflen = (int) t;
+	n = (int) t;
 
-	buf = malloc(buflen + 1);
+	buf = malloc(n + 1);
 
 	if (buf == NULL) {
 		close(fd);
 		return NULL;
 	}
 
-	if (read(fd, buf, buflen) != buflen) {
+	if (read(fd, buf, n) != n) {
 		free(buf);
 		close(fd);
 		return NULL;
@@ -2508,7 +2507,7 @@ readfile(char *filename)
 
 	close(fd);
 
-	buf[buflen] = '\0';
+	buf[n] = '\0';
 
 	return buf;
 }
