@@ -41,7 +41,7 @@ Assembler pseudo-ops
         equ
         bss
         byte
-        word    (emits LS byte first)
+        word    (emits LS byte followed by MS byte)
 ```
 
 Assembler arithmetic operators
