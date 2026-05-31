@@ -9,7 +9,7 @@ Run a self test
 ./sim selftest.s
 ```
 
-Run Microsoft BASIC fron 1978.
+Run Microsoft BASIC from 1978.
 Press return two times to accept default settings.
 ```
 ./sim basic.s
