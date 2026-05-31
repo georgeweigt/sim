@@ -171,7 +171,7 @@ int main(int argc, char *argv[]);
 void trace(void);
 void opt(int argc, char *argv[]);
 void print_stack(void);
-int readfile(char *filename);
+char * readfile(char *filename);
 void scan_file(int k);
 void scan_line(void);
 struct sym * scan_add_symbol(void);

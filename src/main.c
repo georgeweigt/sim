@@ -8,7 +8,9 @@ main(int argc, char *argv[])
 	if (filename == NULL)
 		return 1;
 
-	if (readfile(filename) < 0)
+	buf = readfile(filename);
+
+	if (buf == NULL)
 		return 1;
 
 	mem = malloc(65536);
