@@ -8,7 +8,7 @@ int
 main()
 {
 	int i, j;
-	uint32_t acc, mem, cy, x, y, h, t;
+	uint32_t acc, mem, cy, h, t;
 	for (cy = 0; cy < 2; cy++)
 	for (i = 0; i < 100; i++)
 	for (j = 0; j < 100; j++) {
