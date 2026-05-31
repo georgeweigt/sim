@@ -44,7 +44,6 @@ struct sym {
 	int where; // line number where symbol defined
 };
 
-extern struct sym stab[26][NSYM];
 extern void (*ftab[256])(void);
 extern char *buf;
 extern int token;
