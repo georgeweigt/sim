@@ -47,7 +47,6 @@ struct sym {
 extern struct sym stab[26][NSYM];
 extern void (*ftab[256])(void);
 extern char *buf;
-extern int buflen;
 extern int token;
 extern int tokenlen;
 extern char tokenbuf[TOKENBUFLEN + 1];
@@ -58,6 +57,7 @@ extern int addrmode;
 extern int value;
 extern int pass;
 extern int where;
+extern struct sym stab[26][NSYM];
 extern int stack[STACKSIZE];
 extern int stackindex;
 extern int curloc;
