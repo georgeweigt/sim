@@ -1,15 +1,11 @@
-.PHONY: check clean
+.PHONY: all
 
-sim: defs.h prototypes.h *.c
-	$(CC) -Wall -O0 -o sim -include defs.h -include prototypes.h *.c
+sim: sim.c
+	$(CC) -Wall -O0 -o sim sim.c
 
-prototypes.h: *.c
-	make -s -C tools make-prototypes
-	tools/make-prototypes *.c > prototypes.h
+sim.c: src/LICENSE src/defs.h src/prototypes.h src/*.c
+	cat src/LICENSE src/defs.h src/prototypes.h src/*.c > sim.c
 
-check:
-	make -s -C tools wcheck
-	tools/wcheck *.c
-
-clean:
-	rm -f sim prototypes.h
+all:
+	make -C src
+	make sim
