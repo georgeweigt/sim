@@ -8,4 +8,5 @@ sim.c: src/LICENSE src/defs.h src/prototypes.h src/*.c
 
 all:
 	make -C src
+	make -C test
 	make sim
