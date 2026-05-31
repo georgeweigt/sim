@@ -69,11 +69,10 @@ Built-in functions
 ```
         jsr     $fff0   ; exit sim
 
-        lda     #"y"
-        jsr     $fff1   ; write to console
+        jsr     $fff1   ; write char in acc to console
 
         jsr     $fff2   ; write string to console
-        word    str
+        word    str     ; address of string
 
         jsr     $fff3   ; read input string from console into page 2 buffer
 ```
