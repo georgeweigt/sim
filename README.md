@@ -41,7 +41,9 @@ Assembler pseudo-ops
         equ
         bss
         byte
-        word    (emits LS byte followed by MS byte)
+        word    ; little endian
+        db      ; same as byte
+        dw      ; same as word
 ```
 
 Assembler arithmetic operators
