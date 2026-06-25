@@ -820,7 +820,8 @@ scan_byte(void)
 	char *s;
 	do {
 		scan_token();
-		if (token == T_QUOSTR && tokenlen > 1) {
+		// if 1 char then it can be used in an arithmetic expression
+		if (token == T_QUOSTR && tokenlen != 1) {
 			s = tokenbuf;
 			while (*s)
 				scan_emit_byte(*s++);
