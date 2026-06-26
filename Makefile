@@ -10,6 +10,6 @@ selftest.s: test/*
 	cat test/intro test/test* test/outro > selftest.s
 
 all:
-	make selftest.s
-	make -C src
+	make -C src prototypes.h
 	make sim
+	make selftest.s
