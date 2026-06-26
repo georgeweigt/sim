@@ -39,11 +39,9 @@ Assembler pseudo-ops
 ```
         org
         equ
-        bss
-        byte
-        word    ; little endian
-        db      ; same as byte
-        dw      ; same as word
+        ds      ; also 'bss'
+        db      ; also 'byte'
+        dw      ; also 'word'
 ```
 
 Assembler arithmetic operators
@@ -74,7 +72,7 @@ Built-in functions
         jsr     $fff1   ; write char in acc to console
 
         jsr     $fff2   ; write string to console
-        word    str     ; address of string
+        dw      str     ; address of string
 
         jsr     $fff3   ; read input string from console into page 2 buffer
 ```

@@ -9,4 +9,4 @@ loop	lda	str,x
 	inx
 	jmp	loop
 
-str	byte	"hello",10,0
+str	db	"hello",10,0
