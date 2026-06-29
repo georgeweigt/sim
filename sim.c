@@ -4462,7 +4462,7 @@ stack_div(void)
 		scan_error("stack underflow");
 	stackindex--;
 	if (where == UNDEF)
-		return; // dummy value on stack, might be zero
+		return; // pass 1 forward defn
 	if (stack[stackindex] == 0)
 		scan_error("divide by zero");
 	stack[stackindex - 1] /= stack[stackindex];
@@ -4475,7 +4475,7 @@ stack_rem(void)
 		scan_error("stack underflow");
 	stackindex--;
 	if (where == UNDEF)
-		return; // dummy value on stack, might be zero
+		return; // pass 1 forward defn
 	if (stack[stackindex] == 0)
 		scan_error("divide by zero");
 	stack[stackindex - 1] %= stack[stackindex];
