@@ -479,7 +479,7 @@ scan_expr(void)
 {
 	int t = token;
 
-	if (t == '+' || t == '-' || t == '~')
+	if (t == '+' || t == '-' || t == '~' || t == '<' || t == '>')
 		scan_token();
 
 	scan_term();
