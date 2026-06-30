@@ -261,3 +261,5 @@ void stack_xor(void);
 void stack_cpl(void);
 void stack_shr(void);
 void stack_shl(void);
+void stack_lo(void);
+void stack_hi(void);

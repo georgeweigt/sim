@@ -491,6 +491,12 @@ scan_expr(void)
 	case '~':
 		stack_cpl();
 		break;
+	case '>':
+		stack_lo();
+		break;
+	case '<':
+		stack_hi();
+		break;
 	default:
 		break;
 	}

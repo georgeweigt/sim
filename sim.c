@@ -550,6 +550,8 @@ void stack_xor(void);
 void stack_cpl(void);
 void stack_shr(void);
 void stack_shl(void);
+void stack_lo(void);
+void stack_hi(void);
 void
 emit(int opcode, int count)
 {
@@ -3123,6 +3125,12 @@ scan_expr(void)
 	case '~':
 		stack_cpl();
 		break;
+	case '>':
+		stack_lo();
+		break;
+	case '<':
+		stack_hi();
+		break;
 	default:
 		break;
 	}
@@ -4532,4 +4540,20 @@ stack_shl(void)
 		scan_error("stack underflow");
 	stackindex--;
 	stack[stackindex - 1] <<= stack[stackindex];
+}
+
+void
+stack_lo(void)
+{
+	if (stackindex < 1)
+		scan_error("stack underflow");
+	stack[stackindex - 1] = stack[stackindex - 1] & 0xff;
+}
+
+void
+stack_hi(void)
+{
+	if (stackindex < 1)
+		scan_error("stack underflow");
+	stack[stackindex - 1] = stack[stackindex - 1] >> 8;
 }

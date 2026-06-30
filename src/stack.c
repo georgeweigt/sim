@@ -127,3 +127,19 @@ stack_shl(void)
 	stackindex--;
 	stack[stackindex - 1] <<= stack[stackindex];
 }
+
+void
+stack_lo(void)
+{
+	if (stackindex < 1)
+		scan_error("stack underflow");
+	stack[stackindex - 1] = stack[stackindex - 1] & 0xff;
+}
+
+void
+stack_hi(void)
+{
+	if (stackindex < 1)
+		scan_error("stack underflow");
+	stack[stackindex - 1] = stack[stackindex - 1] >> 8;
+}
